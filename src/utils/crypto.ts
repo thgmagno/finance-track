@@ -19,3 +19,17 @@ export const decryptJson = (encryptedData: string): object => {
   decrypted += decipher.final('utf-8')
   return JSON.parse(decrypted)
 }
+
+export const encryptStr = (strData: string): string => {
+  const cipher = crypto.createCipheriv(algorithm, key, iv)
+  let encrypted = cipher.update(strData, 'utf8', 'hex')
+  encrypted += cipher.final('hex')
+  return encrypted
+}
+
+export const decryptStr = (encryptedStr: string): string => {
+  const cipher = crypto.createDecipheriv(algorithm, key, iv)
+  let decrypted = cipher.update(encryptedStr, 'hex', 'utf-8')
+  decrypted += cipher.final('utf-8')
+  return decrypted
+}
