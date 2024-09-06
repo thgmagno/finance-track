@@ -1,8 +1,8 @@
 import { Database } from '@/db/schema'
 import { db } from '@/db'
-import { IUserDataFetcher } from './interfaces/userDataFetcher'
+import { UserData } from '@/interfaces/userData'
 
-class UserDataFetcher implements IUserDataFetcher {
+class UserRepository implements UserData {
   async fetchUser(name: string): Promise<Database['users'] | undefined> {
     const user = await db
       .selectFrom('users')
@@ -19,4 +19,4 @@ class UserDataFetcher implements IUserDataFetcher {
   }
 }
 
-export const userService: IUserDataFetcher = new UserDataFetcher()
+export const userRepository: UserData = new UserRepository()

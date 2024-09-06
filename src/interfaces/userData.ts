@@ -1,6 +1,6 @@
 import { Database } from '@/db/schema'
 
-export interface IUserDataFetcher {
+export interface UserData {
   fetchUser(
     name?: string,
     email?: string,

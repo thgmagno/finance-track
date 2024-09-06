@@ -27,7 +27,7 @@ async function createSessionToken(payload: { username: string }) {
   return session
 }
 
-export const AuthService = {
+export const AuthRepository = {
   openSessionToken,
   createSessionToken,
 }
