@@ -1,7 +1,10 @@
 import { userService } from '@/services/userService'
 import Link from 'next/link'
+import { unstable_noStore as noStore } from 'next/cache'
 
 export default async function Home() {
+  noStore()
+
   const users = await userService.fetchAllUsers()
 
   return (
