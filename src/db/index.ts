@@ -1,5 +1,4 @@
-import { Cluster } from '@/interfaces/cluster'
-import { User } from '@/interfaces/user'
+import { Cluster, User } from '@/lib/schemas/dbSchema'
 import { createKysely } from '@vercel/postgres-kysely'
 
 export interface Database {
