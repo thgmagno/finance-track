@@ -1,5 +1,6 @@
 'use client'
 
+import { closeSession } from '@/actions/authActions'
 import { IonIcon } from '@ionic/react'
 import clsx from 'clsx'
 import {
@@ -11,6 +12,7 @@ import {
 } from 'ionicons/icons'
 import Link from 'next/link'
 import { LinkHTMLAttributes, useEffect, useRef, useState } from 'react'
+import Swal from 'sweetalert2'
 
 interface NavbarItemProps extends LinkHTMLAttributes<HTMLLinkElement> {
   icon: string
@@ -65,6 +67,23 @@ export function Navbar({ name }: { name: string }) {
     </button>
   )
 
+  const handleLogout = () => {
+    Swal.fire({
+      title: 'Tem certeza que deseja sair?',
+      text: 'Você será desconectado do sistema!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sim, sair!',
+      cancelButtonText: 'Cancelar',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        await closeSession()
+      }
+    })
+  }
+
   return (
     <nav className="relative flex items-center justify-between py-5">
       <Link href="/">Finance Track</Link>
@@ -102,7 +121,7 @@ export function Navbar({ name }: { name: string }) {
         <NavbarItem
           icon={logOut}
           title="Logout"
-          onClick={() => alert('implement')}
+          onClick={handleLogout}
           className="text-red-500"
         />
       </div>

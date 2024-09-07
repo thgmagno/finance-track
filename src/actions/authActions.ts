@@ -11,11 +11,9 @@ import { getUserDetails } from './userActions'
 const secret = new TextEncoder().encode(process.env.AUTH_SECRET)
 
 export async function openSessionToken(
-  token?: string,
+  token: string,
 ): Promise<jose.JWTPayload> {
-  const _token =
-    token ?? (cookies().get(process.env.COOKIE_NAME!)?.value as string)
-  const { payload } = await jose.jwtVerify(_token, secret)
+  const { payload } = await jose.jwtVerify(token, secret)
   return payload
 }
 
@@ -79,4 +77,16 @@ export async function authenticate(
   }
 
   redirect('/')
+}
+
+export async function closeSession() {
+  cookies().delete(process.env.COOKIE_NAME!)
+  // revalidatePath('/')
+}
+
+export async function getSession() {
+  const token = cookies().get(process.env.COOKIE_NAME!)?.value
+  if (!token) redirect('/login')
+  const { payload } = await jose.jwtVerify(token, secret)
+  return payload
 }

@@ -1,4 +1,4 @@
-import { openSessionToken } from '@/actions/authActions'
+import { getSession } from '@/actions/authActions'
 import { Navbar } from '@/components/navbar'
 
 export default async function RootLayout({
@@ -6,7 +6,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const { name } = await openSessionToken()
+  const { name } = await getSession()
 
   return (
     <div className="custom-container">
