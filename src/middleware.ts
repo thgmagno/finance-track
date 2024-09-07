@@ -1,26 +1,46 @@
-// import { cookies } from 'next/headers'
+import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import * as jose from 'jose'
 
-export function middleware(request: NextRequest) {
-  // const publicRoutes = ['/login']
-  // const cookie = cookies().get(process.env.COOKIE_NAME!)?.value
+export async function middleware(request: NextRequest) {
+  const secret = new TextEncoder().encode(process.env.AUTH_SECRET)
+  const publicRoutes = ['/login']
+  const token = cookies().get(process.env.COOKIE_NAME!)?.value
+  const pathname = request.nextUrl.pathname
 
-  // if (!cookie && !publicRoutes.includes(request.url)) {
-  //   return NextResponse.redirect(new URL('/login', request.url))
-  // }
+  if (publicRoutes.includes(pathname)) {
+    if (token) {
+      try {
+        const { exp } = (await jose.jwtVerify(token, secret)).payload
+        if (exp && exp * 1000 > new Date().getTime()) {
+          return NextResponse.redirect(new URL('/', request.url))
+        }
+      } catch (error) {
+        cookies().delete(process.env.COOKIE_NAME!)
+        return NextResponse.redirect(new URL('/login', request.url))
+      }
+    }
+    return NextResponse.next()
+  }
 
-  // if (cookie && publicRoutes.includes(request.url)) {
-  //   return NextResponse.redirect(new URL('/', request.url))
-  // }
+  if (!token) {
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
 
-  return NextResponse.next()
+  try {
+    const { exp } = (await jose.jwtVerify(token, secret)).payload
+    if (exp && exp * 1000 < new Date().getTime()) {
+      cookies().delete(process.env.COOKIE_NAME!)
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+    return NextResponse.next()
+  } catch (error) {
+    cookies().delete(process.env.COOKIE_NAME!)
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
 }
 
 export const config = {
-  matcher: '/',
+  matcher: '/((?!static|_next/static|_next/image|favicon.ico).*)',
 }
-
-// export const config = {
-//   matcher: ['/', '/dashboard/:path*', '/profile/:path*'],
-// }

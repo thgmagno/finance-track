@@ -1,4 +1,10 @@
+import { Cluster } from '@/interfaces/cluster'
+import { User } from '@/interfaces/user'
 import { createKysely } from '@vercel/postgres-kysely'
-import { Database } from './schema'
+
+export interface Database {
+  clusters: Cluster
+  users: User
+}
 
 export const db = createKysely<Database>()
