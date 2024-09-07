@@ -15,7 +15,7 @@ export function ButtonSubmit({ title, className, ...rest }: Props) {
   return (
     <button
       type="submit"
-      className={`flex items-center justify-center rounded-md border p-2 shadow disabled:cursor-not-allowed ${className}`}
+      className={`flex items-center justify-center rounded-md border bg-white p-2 shadow transition-all duration-200 hover:bg-zinc-100 disabled:cursor-not-allowed ${className}`}
       disabled={pending}
       {...rest}
     >
