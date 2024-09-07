@@ -99,7 +99,7 @@ export function Navbar({ name }: { name: string }) {
           icon={caretDownOutline}
           onClick={() => setOpen(!open)}
           className={clsx(
-            `z-10 cursor-pointer rounded-md p-2 hover:bg-zinc-100 hover:shadow`,
+            `z-50 cursor-pointer rounded-md p-2 hover:bg-zinc-100 hover:shadow`,
             {
               'bg-zinc-100 hover:shadow-none': open,
             },
@@ -109,7 +109,7 @@ export function Navbar({ name }: { name: string }) {
       <div
         ref={menuRef}
         className={clsx(
-          'absolute right-0 top-12 flex flex-col rounded-b-md rounded-tl-md bg-zinc-100 py-2 shadow',
+          'absolute right-0 top-12 z-40 flex flex-col rounded-b-md rounded-tl-md bg-zinc-100 py-2 shadow',
           {
             hidden: open === false,
           },
