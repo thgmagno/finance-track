@@ -1,32 +1,41 @@
-CREATE TABLE clusters (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    owner_id INT UNIQUE -- Relaciona com o dono do cluster
-);
-
+-- Tabela de Usuários
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(50),
-    email VARCHAR(50) UNIQUE NOT NULL,
-    password VARCHAR NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    cluster_id INT UNIQUE, -- Relacionamento com a tabela clusters
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    owned_cluster_id INT UNIQUE, -- Relaciona com o cluster que o usuário possui
-    cluster_id INT UNIQUE,       -- Relaciona com o cluster que o usuário pertence
-    CONSTRAINT fk_owned_cluster
-        FOREIGN KEY (owned_cluster_id) 
-        REFERENCES clusters(id) 
-        ON DELETE SET NULL, 
-    CONSTRAINT fk_cluster
-        FOREIGN KEY (cluster_id) 
-        REFERENCES clusters(id) 
-        ON DELETE SET NULL
+    FOREIGN KEY (cluster_id) REFERENCES clusters(id) ON DELETE SET NULL
 );
 
-ALTER TABLE clusters
-ADD CONSTRAINT fk_owner
-FOREIGN KEY (owner_id)
-REFERENCES users(id)
-ON DELETE SET NULL;
+-- Tabela de Clusters
+CREATE TABLE clusters (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    owner_id INT UNIQUE, -- Relacionamento com o dono do cluster
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Tabela Master
+CREATE TABLE master (
+    id SERIAL PRIMARY KEY,
+    key VARCHAR(255) NOT NULL,
+    value TEXT NOT NULL,
+    cluster_id INT, -- Relacionamento com a tabela clusters
+    FOREIGN KEY (cluster_id) REFERENCES clusters(id) ON DELETE CASCADE
+);
+
+-- Tabela de Convites para Clusters
+CREATE TABLE cluster_invites (
+    id SERIAL PRIMARY KEY,
+    cluster_id INT NOT NULL,
+    user_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(50) DEFAULT 'pending', -- status pode ser 'pending', 'accepted', 'rejected'
+    FOREIGN KEY (cluster_id) REFERENCES clusters(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);

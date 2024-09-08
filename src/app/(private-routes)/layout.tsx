@@ -6,11 +6,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const { name } = await getSession()
+  const { name, cluster } = await getSession()
 
   return (
     <div className="custom-container">
-      <Navbar name={name as string} />
+      <Navbar name={name as string} cluster={String(cluster)} />
       {children}
     </div>
   )

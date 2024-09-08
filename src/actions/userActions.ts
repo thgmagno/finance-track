@@ -22,19 +22,3 @@ export async function getUserDetails({
 
   return user
 }
-
-export async function listUsers() {
-  const users = await db
-    .selectFrom('users')
-    .select([
-      'id',
-      'name',
-      'email',
-      'created_at',
-      'updated_at',
-      'owned_cluster_id',
-      'cluster_id',
-    ])
-    .execute()
-  return users
-}

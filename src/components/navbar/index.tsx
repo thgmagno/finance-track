@@ -11,8 +11,10 @@ import {
   logOut,
 } from 'ionicons/icons'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { LinkHTMLAttributes, useEffect, useRef, useState } from 'react'
 import Swal from 'sweetalert2'
+import { NewClusterButtonTrigger } from '../button/newClusterButtonTrigger'
 
 interface NavbarItemProps extends LinkHTMLAttributes<HTMLLinkElement> {
   icon: string
@@ -21,7 +23,7 @@ interface NavbarItemProps extends LinkHTMLAttributes<HTMLLinkElement> {
   onClick?: () => void
 }
 
-export function Navbar({ name }: { name: string }) {
+export function Navbar({ name, cluster }: { name: string; cluster: string }) {
   const [open, setOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -90,10 +92,14 @@ export function Navbar({ name }: { name: string }) {
       <div className="flex">
         <div className="mr-2 flex flex-col items-end">
           <h1>{name}</h1>
-          <b className="flex items-baseline gap-1 text-xs text-sky-600">
-            <div className="h-[6px] w-[6px] animate-pulse rounded-full bg-sky-500" />
-            [cluster]
-          </b>
+          {cluster ? (
+            <b className="flex items-baseline gap-1 text-xs text-sky-600">
+              <div className="h-[6px] w-[6px] animate-pulse rounded-full bg-sky-500" />
+              {cluster}
+            </b>
+          ) : (
+            <NewClusterButtonTrigger />
+          )}
         </div>
         <IonIcon
           icon={caretDownOutline}

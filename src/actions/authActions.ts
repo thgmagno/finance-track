@@ -7,6 +7,7 @@ import { cookies } from 'next/headers'
 import * as bcrypt from 'bcrypt'
 import { redirect } from 'next/navigation'
 import { getUserDetails } from './userActions'
+import { getClusterDetails } from './clusterActions'
 
 const secret = new TextEncoder().encode(process.env.AUTH_SECRET)
 
@@ -18,7 +19,10 @@ export async function openSessionToken(
 }
 
 export async function createSessionToken(payload: {
+  sub: string
   name: string
+  cluster?: string
+  clusterId?: number | null
 }): Promise<string> {
   const session = await new jose.SignJWT(payload)
     .setProtectedHeader({
@@ -67,7 +71,17 @@ export async function authenticate(
       return { errors: { password: ['Password not match'] } }
     }
 
-    const payload = { name: user.name }
+    const payload = {
+      sub: String(user.id),
+      name: user.name,
+      cluster: '',
+      clusterId: user.cluster_id,
+    }
+
+    if (user.cluster_id) {
+      const cluster = await getClusterDetails(user.cluster_id)
+      payload.cluster = cluster?.name ?? ''
+    }
 
     await createSessionToken(payload)
   } catch (err) {
@@ -89,4 +103,30 @@ export async function getSession() {
   if (!token) redirect('/login')
   const { payload } = await jose.jwtVerify(token, secret)
   return payload
+}
+
+export async function refreshSessionToken(payload: {
+  name?: string
+  cluster?: string
+  clusterId?: number
+}) {
+  let cluster = { id: 0, name: '' }
+
+  if (payload.clusterId) {
+    const res = await getClusterDetails(payload.clusterId)
+    if (res?.name && res.id) {
+      cluster = { id: res.id, name: res.name }
+    }
+  }
+
+  const oldPayload = await getSession()
+
+  const newPayload = {
+    sub: String(oldPayload.sub),
+    name: payload.name ?? (oldPayload.name as string),
+    cluster: cluster.name ?? oldPayload.cluster,
+    clusterId: cluster.id ?? oldPayload.clusterId,
+  }
+
+  return createSessionToken(newPayload)
 }
