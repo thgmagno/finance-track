@@ -4,11 +4,16 @@ import { ButtonHTMLAttributes } from 'react'
 interface Props extends ButtonHTMLAttributes<HTMLElement> {
   title: string
   paramToDismiss: string
+  callback?: {
+    name: string
+    value: string
+  }
 }
 
 export function ButtonDismiss({
   title,
   paramToDismiss,
+  callback,
   className,
   ...rest
 }: Props) {
@@ -19,6 +24,7 @@ export function ButtonDismiss({
   const handleClick = () => {
     const params = new URLSearchParams(searchParams)
     params.delete(paramToDismiss)
+    callback && params.set(callback.name, callback.value)
     replace(params ? `${pathname}?${params.toString()}` : pathname)
   }
 

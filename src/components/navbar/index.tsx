@@ -14,7 +14,8 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { LinkHTMLAttributes, useEffect, useRef, useState } from 'react'
 import Swal from 'sweetalert2'
-import { NewClusterButtonTrigger } from '../button/newClusterButtonTrigger'
+import { NewClusterButtonTrigger } from '@/components/modals/newClusterButtonTrigger'
+import { ViewClusterButtonTrigger } from '@/components/modals/viewClusterButtonTrigger'
 
 interface NavbarItemProps extends LinkHTMLAttributes<HTMLLinkElement> {
   icon: string
@@ -23,7 +24,13 @@ interface NavbarItemProps extends LinkHTMLAttributes<HTMLLinkElement> {
   onClick?: () => void
 }
 
-export function Navbar({ name, cluster }: { name: string; cluster: string }) {
+interface Props {
+  name: string
+  cluster: string
+  userId: string
+}
+
+export function Navbar({ name, cluster, userId }: Props) {
   const [open, setOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -93,19 +100,16 @@ export function Navbar({ name, cluster }: { name: string; cluster: string }) {
         <div className="mr-2 flex flex-col items-end">
           <h1>{name}</h1>
           {cluster ? (
-            <b className="flex items-baseline gap-1 text-xs text-sky-600">
-              <div className="h-[6px] w-[6px] animate-pulse rounded-full bg-sky-500" />
-              {cluster}
-            </b>
+            <ViewClusterButtonTrigger cluster={cluster} />
           ) : (
-            <NewClusterButtonTrigger />
+            <NewClusterButtonTrigger userId={userId} />
           )}
         </div>
         <IonIcon
           icon={caretDownOutline}
           onClick={() => setOpen(!open)}
           className={clsx(
-            `z-50 cursor-pointer rounded-md p-2 hover:bg-zinc-100 hover:shadow`,
+            `z-40 cursor-pointer rounded-md p-2 hover:bg-zinc-100 hover:shadow`,
             {
               'bg-zinc-100 hover:shadow-none': open,
             },

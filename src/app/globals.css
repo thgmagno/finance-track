@@ -9,6 +9,12 @@
   .custom-container {
     @apply max-w-[770px] mx-auto pb-40 min-h-screen px-5 bg-zinc-200 shadow-lg
   }
+  .card-custom {
+    @apply relative flex w-[90%] flex-col space-y-3 rounded-md bg-zinc-200 p-5 shadow md:-translate-y-32
+  }
+  .card-body > :first-child {
+    @apply flex flex-col space-y-3
+  }
 }
 
 @layer utilities {
