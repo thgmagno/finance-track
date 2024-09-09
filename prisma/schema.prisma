@@ -14,8 +14,8 @@ model User {
   email         String          @unique
   password      String
   clusterId     String?         @map("cluster_id")
-  createdAt     DateTime        @default(now()) @map("created_at")
-  updatedAt     DateTime        @updatedAt @map("updated_at")
+  createdAt     DateTime        @default(now()) @map("created_at") @db.Date
+  updatedAt     DateTime        @updatedAt @map("updated_at") @db.Date
   cluster       Cluster[]
   ClusterInvite ClusterInvite[]
 
@@ -26,8 +26,8 @@ model Cluster {
   id            String          @id @default(cuid())
   name          String
   ownerId       String          @map("owner_id")
-  createdAt     DateTime        @default(now()) @map("created_at")
-  updatedAt     DateTime        @updatedAt @map("updated_at")
+  createdAt     DateTime        @default(now()) @map("created_at") @db.Date
+  updatedAt     DateTime        @updatedAt @map("updated_at") @db.Date
   ClusterInvite ClusterInvite[]
   Category      Category[]
   Transaction   Transaction[]
@@ -40,7 +40,7 @@ model Cluster {
 
 model ClusterInvite {
   id        String   @id @default(cuid())
-  createdAt DateTime @default(now()) @map("created_at")
+  createdAt DateTime @default(now()) @map("created_at") @db.Date
   status    String   @default("pending")
   clusterId String?  @map("cluster_id")
   userId    String?  @map("user_id")
@@ -105,8 +105,8 @@ model CreditCardInstallment {
 
 model Saving {
   id          String    @id @default(cuid())
-  startAt     DateTime  @default(now()) @map("start_at")
-  endAt       DateTime? @map("end_at")
+  startAt     DateTime  @default(now()) @map("start_at") @db.Date
+  endAt       DateTime? @map("end_at") @db.Date
   description String
   value       Float
   status      Boolean
