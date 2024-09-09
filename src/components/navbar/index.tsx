@@ -11,7 +11,6 @@ import {
   logOut,
 } from 'ionicons/icons'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
 import { LinkHTMLAttributes, useEffect, useRef, useState } from 'react'
 import Swal from 'sweetalert2'
 import { NewClusterButtonTrigger } from '@/components/modals/newClusterButtonTrigger'
@@ -55,6 +54,7 @@ export function Navbar({ name, cluster, userId }: Props) {
     onClick?: () => void
   }) => {
     setOpen(false)
+    console.log(href)
     onClick && onClick()
   }
 
