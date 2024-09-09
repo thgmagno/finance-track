@@ -5,7 +5,7 @@ import * as jose from 'jose'
 
 export async function middleware(request: NextRequest) {
   const secret = new TextEncoder().encode(process.env.AUTH_SECRET)
-  const publicRoutes = ['/login']
+  const publicRoutes = ['/login', '/create-account']
   const token = cookies().get(process.env.COOKIE_NAME!)?.value
   const pathname = request.nextUrl.pathname
 

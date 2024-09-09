@@ -1,0 +1,120 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model User {
+  id            String          @id @default(cuid())
+  name          String
+  email         String          @unique
+  password      String
+  clusterId     String?         @map("cluster_id")
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+  cluster       Cluster[]
+  ClusterInvite ClusterInvite[]
+
+  @@map("users")
+}
+
+model Cluster {
+  id            String          @id @default(cuid())
+  name          String
+  ownerId       String          @map("owner_id")
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+  ClusterInvite ClusterInvite[]
+  Category      Category[]
+  Transaction   Transaction[]
+
+  owner  User     @relation(fields: [ownerId], references: [id])
+  Saving Saving[]
+
+  @@map("clusters")
+}
+
+model ClusterInvite {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  status    String   @default("pending")
+  clusterId String?  @map("cluster_id")
+  userId    String?  @map("user_id")
+
+  cluster Cluster? @relation(fields: [clusterId], references: [id])
+  user    User?    @relation(fields: [userId], references: [id])
+
+  @@map("cluster_invite")
+}
+
+model Category {
+  id          String        @id @default(cuid())
+  description String
+  type        Int
+  clusterId   String?       @map("cluster_id")
+  Transaction Transaction[]
+
+  cluster Cluster? @relation(fields: [clusterId], references: [id])
+  Saving  Saving[]
+
+  @@map("categories")
+}
+
+model PaymentMethod {
+  id          String        @id @default(cuid())
+  description String
+  transaction Transaction[]
+
+  @@map("payment_method")
+}
+
+model Transaction {
+  id              String  @id @default(cuid())
+  year            Int
+  month           Int
+  description     String
+  value           Float
+  status          Int
+  categoryId      String? @map("category_id")
+  clusterId       String? @map("cluster_id")
+  paymentMethodId String? @map("payment_method_id")
+
+  category              Category?               @relation(fields: [categoryId], references: [id])
+  cluster               Cluster?                @relation(fields: [clusterId], references: [id])
+  paymentMethod         PaymentMethod?          @relation(fields: [paymentMethodId], references: [id])
+  CreditCardInstallment CreditCardInstallment[]
+
+  @@map("transactions")
+}
+
+model CreditCardInstallment {
+  id                String      @id @default(cuid())
+  transaction       Transaction @relation(fields: [transactionId], references: [id])
+  transactionId     String      @map("transaction_id")
+  installmentNumber Int         @map("installment_number")
+  installmentValue  Int         @map("installment_value")
+  year              Int
+  month             Int
+
+  @@map("credit_card_installment")
+}
+
+model Saving {
+  id          String    @id @default(cuid())
+  startAt     DateTime  @default(now()) @map("start_at")
+  endAt       DateTime? @map("end_at")
+  description String
+  value       Float
+  status      Boolean
+  categoryId  String    @map("category_id")
+  clusterId   String    @map("cluster_id")
+
+  category Category @relation(fields: [categoryId], references: [id])
+  cluster  Cluster  @relation(fields: [clusterId], references: [id])
+
+  @@map("savings")
+}

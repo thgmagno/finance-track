@@ -33,6 +33,11 @@ export function ClusterForm({ userId }: { userId: string }) {
               isInvalid={!!formState.errors?.name}
               errorMessage={formState.errors?.name}
             />
+            {formState.errors?._form && (
+              <span className="text-sm text-red-500">
+                {formState.errors._form}
+              </span>
+            )}
             <ButtonSubmit title="Create" />
             <ButtonDismiss title="Cancel" paramToDismiss="create" />
             <LookingClusterButtonTrigger />

@@ -1,13 +1,15 @@
 'use server'
 
-import { AuthSchema } from '@/lib/schemas/authSchema'
-import { AuthFormState } from '@/lib/states/authState'
+import { AuthSchema, CreateAccountSchema } from '@/lib/schemas/authSchema'
+import { AuthFormState, CreateAccountFormState } from '@/lib/states/authState'
 import * as jose from 'jose'
 import { cookies } from 'next/headers'
 import * as bcrypt from 'bcrypt'
 import { redirect } from 'next/navigation'
 import { getUserDetails } from './userActions'
 import { getClusterDetails } from './clusterActions'
+import { prisma } from '@/lib/prisma'
+import { capitalizeStr } from '@/utils/capitilizeStr'
 
 const secret = new TextEncoder().encode(process.env.AUTH_SECRET)
 
@@ -22,7 +24,7 @@ export async function createSessionToken(payload: {
   sub: string
   name: string
   cluster?: string
-  clusterId?: number | null
+  clusterId?: string | null
 }): Promise<string> {
   const session = await new jose.SignJWT(payload)
     .setProtectedHeader({
@@ -75,11 +77,11 @@ export async function authenticate(
       sub: String(user.id),
       name: user.name,
       cluster: '',
-      clusterId: user.cluster_id,
+      clusterId: user.clusterId,
     }
 
-    if (user.cluster_id) {
-      const cluster = await getClusterDetails(user.cluster_id)
+    if (user.clusterId) {
+      const cluster = await getClusterDetails(user.clusterId)
       payload.cluster = cluster?.name ?? ''
     }
 
@@ -95,7 +97,6 @@ export async function authenticate(
 
 export async function closeSession() {
   cookies().delete(process.env.COOKIE_NAME!)
-  // revalidatePath('/')
 }
 
 export async function getSession() {
@@ -108,9 +109,9 @@ export async function getSession() {
 export async function refreshSessionToken(payload: {
   name?: string
   cluster?: string
-  clusterId?: number
+  clusterId?: string
 }) {
-  let cluster = { id: 0, name: '' }
+  let cluster = { id: '', name: '' }
 
   if (payload.clusterId) {
     const res = await getClusterDetails(payload.clusterId)
@@ -129,4 +130,46 @@ export async function refreshSessionToken(payload: {
   }
 
   return createSessionToken(newPayload)
+}
+
+export async function createAccountAndSessionToken(
+  formState: CreateAccountFormState,
+  formData: FormData,
+): Promise<CreateAccountFormState> {
+  const parsed = CreateAccountSchema.safeParse({
+    name: formData.get('name'),
+    email: formData.get('email'),
+    password: formData.get('password'),
+  })
+
+  if (!parsed.success) {
+    return { errors: parsed.error.flatten().fieldErrors }
+  }
+
+  try {
+    const hash = await bcrypt.hash(parsed.data.password, 10)
+
+    const user = await prisma.user.create({
+      data: {
+        name: capitalizeStr(parsed.data.name),
+        email: parsed.data.email,
+        password: hash,
+      },
+    })
+
+    const payload = {
+      sub: String(user.id),
+      name: user.name,
+      cluster: '',
+      clusterId: user.clusterId,
+    }
+
+    await createSessionToken(payload)
+  } catch (err) {
+    return {
+      errors: { _form: 'Cannot connect to the server' },
+    }
+  }
+
+  redirect('/')
 }

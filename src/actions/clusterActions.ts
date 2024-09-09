@@ -1,35 +1,19 @@
 'use server'
 
-import { db } from '@/db'
-import { ClusterSchema } from '@/lib/schemas/clusterSchema'
-import { CreateCluster } from '@/lib/schemas/dbSchema'
+import { prisma } from '@/lib/prisma'
+import { sql } from '@vercel/postgres'
+import { redirect } from 'next/navigation'
 import { ClusterFormState } from '@/lib/states/clusterState'
+import { ClusterSchema } from '@/lib/schemas/clusterSchema'
+import { createId } from '@/utils/createId'
 import { refreshSessionToken } from './authActions'
-import { revalidatePath } from 'next/cache'
 
-export async function getClusterDetails(clusterId: number) {
-  const cluster = await db
-    .selectFrom('clusters')
-    .selectAll()
-    .where('clusters.id', '=', clusterId)
-    .executeTakeFirst()
+export async function getClusterDetails(clusterId: string) {
+  const cluster = await prisma.cluster.findFirst({
+    where: { id: clusterId },
+  })
 
   return cluster
-}
-
-export async function saveClusterOnDatabase(cluster: CreateCluster) {
-  const values = {
-    name: cluster.name,
-    owner_id: cluster.owner_id,
-  }
-
-  const result = await db
-    .insertInto('clusters')
-    .values(values)
-    .returning('id')
-    .executeTakeFirst()
-
-  return result
 }
 
 export async function createCluster(
@@ -46,23 +30,21 @@ export async function createCluster(
   }
 
   try {
-    const res = await saveClusterOnDatabase({
-      name: parsed.data.name,
-      owner_id: parsed.data.userId,
-    })
+    const clusterId = createId()
 
-    if (res?.id && res.id > 0) {
-      await refreshSessionToken({
-        cluster: parsed.data.name,
-        clusterId: res.id,
-      })
+    await sql`SELECT create_cluster(${clusterId}, ${parsed.data.name}, ${parsed.data.userId})`
+
+    const payload = {
+      cluster: parsed.data.name,
+      clusterId,
     }
+
+    await refreshSessionToken(payload)
   } catch (err) {
     return {
       errors: { _form: 'Internal server error' },
     }
   }
 
-  revalidatePath('/')
-  return { errors: {} }
+  redirect('/')
 }

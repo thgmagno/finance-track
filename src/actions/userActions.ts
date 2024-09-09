@@ -1,6 +1,6 @@
 'use server'
 
-import { db } from '@/db'
+import { prisma } from '@/lib/prisma'
 
 export async function getUserDetails({
   name,
@@ -9,16 +9,16 @@ export async function getUserDetails({
   name?: string
   email?: string
 }) {
-  const user = await db
-    .selectFrom('users')
-    .selectAll()
-    .where((eb) =>
-      eb.or([
-        eb('name', 'ilike', `%${name}%` ?? ''),
-        eb('email', 'ilike', `%${email}%` ?? ''),
-      ]),
-    )
-    .executeTakeFirst()
+  const user = await prisma.user.findFirst({
+    where: {
+      OR: [
+        {
+          ...(name && { name: { contains: name, mode: 'insensitive' } }),
+          ...(email && { email: { contains: email, mode: 'insensitive' } }),
+        },
+      ],
+    },
+  })
 
   return user
 }
