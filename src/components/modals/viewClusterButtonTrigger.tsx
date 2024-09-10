@@ -6,9 +6,10 @@ import { Card } from '@/components/modals/card'
 import { CardHeader } from '@/components/modals/cardHeader'
 import { CardBody } from '@/components/modals/cardBody'
 import { useEffect, useState } from 'react'
-import { getClusterDetails } from '@/actions/clusterActions'
+import { getClusterParticipantsAndInvites } from '@/actions/clusterActions'
 import { getSession } from '@/actions/authActions'
 import { capitalizeStr } from '@/utils/capitilizeStr'
+import { ClusterWithParticipantsAndInvites } from '@/lib/types/cluster'
 
 export function ViewClusterButtonTrigger({ cluster }: { cluster: string }) {
   const pathname = usePathname()
@@ -38,16 +39,15 @@ export function ViewClusterButtonTrigger({ cluster }: { cluster: string }) {
 }
 
 function ViewCluster() {
-  const [cluster, setCluster] = useState({
-    id: '',
-    name: '',
-  })
+  const [data, setData] = useState<ClusterWithParticipantsAndInvites | null>(
+    null,
+  )
 
   useEffect(() => {
     const fetchCluster = async () => {
       const { clusterId } = await getSession()
-      const cluster = await getClusterDetails(String(clusterId))
-      cluster?.id && setCluster(cluster)
+      const data = await getClusterParticipantsAndInvites(String(clusterId))
+      data && setData(data)
     }
 
     fetchCluster()
@@ -65,8 +65,8 @@ function ViewCluster() {
                   Name:
                 </label>
                 <span>
-                  {cluster.name ? (
-                    capitalizeStr(cluster.name)
+                  {data?.cluster.name ? (
+                    capitalizeStr(data?.cluster.name)
                   ) : (
                     <span className="animate-pulse">Loading name...</span>
                   )}
@@ -81,27 +81,27 @@ function ViewCluster() {
                 Participants:
               </label>
               <article className="my-2">
-                <div>
-                  <span>Fulano</span>
-                </div>
-                <div>
-                  <span>Cicrano</span>
-                </div>
+                {data?.users.map((user) => (
+                  <div key={user.id}>
+                    <span>{user.name}</span>
+                  </div>
+                ))}
               </article>
             </article>
-            <article className="flex flex-col rounded-md bg-zinc-50 p-2">
-              <label className="translate-y-1 text-sm text-zinc-600">
-                Invites:
-              </label>
-              <article className="my-2">
-                <div>
-                  <span>Fulano</span>
-                </div>
-                <div>
-                  <span>Cicrano</span>
-                </div>
+            {data?.invites && data.invites.length > 0 && (
+              <article className="flex flex-col rounded-md bg-zinc-50 p-2">
+                <label className="translate-y-1 text-sm text-zinc-600">
+                  Invites:
+                </label>
+                <article className="my-2">
+                  {data.invites.map((invite) => (
+                    <div key={invite.id}>
+                      <span>{invite.senderName}</span>
+                    </div>
+                  ))}
+                </article>
               </article>
-            </article>
+            )}
           </section>
         </CardBody>
       </Card>

@@ -5,11 +5,12 @@ import { InputCustom } from '@/components/input/inputCustom'
 import { ButtonSubmit } from '@/components/button/submit'
 import { ButtonDismiss } from '@/components/button/dismiss'
 import { useFormState } from 'react-dom'
-import { findClusterByName } from '@/actions/clusterActions'
+import { findClusterByName, sendClusterRequest } from '@/actions/clusterActions'
 import { BackdropBlur } from '../modals/backdropBlur'
 import { Card } from '../modals/card'
 import { CardHeader } from '../modals/cardHeader'
 import { CardBody } from '../modals/cardBody'
+import { getSession } from '@/actions/authActions'
 
 export function LookingClusterForm() {
   const params = useSearchParams()
@@ -44,6 +45,11 @@ export function LookingClusterForm() {
                       {cluster.name}
                       <button
                         type="button"
+                        onClick={async () => {
+                          'server action'
+                          const { sub } = await getSession()
+                          return sendClusterRequest(cluster.id, String(sub))
+                        }}
                         className="rounded-md bg-emerald-400 px-2 py-1 text-sm text-zinc-50"
                       >
                         request to join
