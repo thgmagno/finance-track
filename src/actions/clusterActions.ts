@@ -86,9 +86,7 @@ export async function findClusterByName(
 }
 
 export async function getClusterParticipantsAndInvites(clusterId: string) {
-  return utilityFunctions.clusters.getClusterWithParticipantsAndInvites(
-    clusterId,
-  )
+  return utilityFunctions.clusters.getClusterDetails(clusterId)
 }
 
 export async function sendClusterRequest(clusterId: string, userId: string) {

@@ -17,7 +17,7 @@ export const create = async (
   }
 }
 
-export const getClusterWithParticipantsAndInvites = async (
+export const getClusterDetails = async (
   clusterId: string,
 ): Promise<ClusterWithParticipantsAndInvites> => {
   const { rows } = await sql`
