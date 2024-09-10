@@ -143,7 +143,8 @@ export async function getClusterParticipantsAndInvites(clusterId: string) {
 
 export async function sendClusterRequest(clusterId: string, userId: string) {
   const inviteId = createId()
-  const res =
+  const { rowCount } =
     await sql`SELECT send_cluster_request(${clusterId}, ${userId}, ${inviteId})`
-  console.log(res)
+
+  return rowCount ? rowCount >= 1 : false
 }
