@@ -2,6 +2,7 @@
 
 import { prisma } from '@/lib/prisma'
 import { capitalizeStr } from '@/lib/helpers'
+import { getSession } from '../authentication/session'
 
 export async function getUser({
   name,
@@ -30,4 +31,23 @@ export async function createUser(name: string, email: string, hash: string) {
   })
 
   return user
+}
+
+export async function fetchUsersByEmailExcludingCurrentUser(email: string) {
+  const { sub } = await getSession()
+  return prisma.user.findFirst({
+    where: {
+      email: {
+        contains: email,
+        mode: 'insensitive',
+      },
+      id: {
+        not: sub,
+      },
+    },
+    select: {
+      name: true,
+      email: true,
+    },
+  })
 }
