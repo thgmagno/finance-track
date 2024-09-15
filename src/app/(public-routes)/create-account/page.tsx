@@ -1,10 +1,9 @@
-import { CreateAccountForm } from '@/components/forms/createAccountForm'
+import { RegisterForm } from '@/components/auth/RegisterForm'
 
 export default async function CreateAccount() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center">
-      <h1 className="text-2xl font-medium text-slate-500">Finance Track</h1>
-      <CreateAccountForm />
+      <RegisterForm />
     </main>
   )
 }

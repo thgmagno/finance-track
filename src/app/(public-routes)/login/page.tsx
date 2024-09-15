@@ -1,9 +1,8 @@
-import { LoginForm } from '@/components/authenticate'
+import { LoginForm } from '@/components/auth/LoginForm'
 
 export default async function Login() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center">
-      <h1 className="text-2xl font-medium text-slate-500">Finance Track</h1>
+    <main className="flex min-h-screen flex-col items-center justify-center pb-40 pt-20">
       <LoginForm />
     </main>
   )
