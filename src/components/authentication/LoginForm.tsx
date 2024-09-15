@@ -14,25 +14,25 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useRouter } from 'next/navigation'
+import { useFormState } from 'react-dom'
+import { login } from '@/actions/authentication/login'
+import { ButtonFormSubmit } from '../common/Buttons'
 
-export function RegisterForm() {
+export function LoginForm() {
+  const [formState, action] = useFormState(login, { errors: {} })
   const { replace } = useRouter()
 
   return (
     <Card className="w-[350px]">
       <CardHeader>
-        <CardTitle>Create Account</CardTitle>
+        <CardTitle>Finance Track</CardTitle>
         <CardDescription>
-          Start Your Journey to Financial Freedom Today!
+          Your Path to Smarter Financial Management.
         </CardDescription>
       </CardHeader>
-      <form>
+      <form action={action}>
         <CardContent>
           <div className="grid w-full items-center gap-4">
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" name="name" placeholder="Enter your name" />
-            </div>
             <div className="flex flex-col space-y-1.5">
               <Label htmlFor="email">E-mail</Label>
               <Input
@@ -54,13 +54,13 @@ export function RegisterForm() {
         </CardContent>
         <CardFooter className="flex justify-between">
           <Button
-            onClick={() => replace('/login')}
+            onClick={() => replace('/create-account')}
             type="button"
             variant="link"
           >
-            Return to login
+            Create account
           </Button>
-          <Button type="submit">Register</Button>
+          <ButtonFormSubmit title="Login" className="min-w-[67.47px]" />
         </CardFooter>
       </form>
     </Card>

@@ -1,4 +1,4 @@
-import { RegisterForm } from '@/components/auth/RegisterForm'
+import { RegisterForm } from '@/components/authentication/RegisterForm'
 
 export default async function CreateAccount() {
   return (
