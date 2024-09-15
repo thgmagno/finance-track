@@ -3,6 +3,7 @@
 import { secret } from '@/lib/helpers'
 import * as jose from 'jose'
 import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
 
 export async function openSessionToken(
   token: string,
@@ -37,4 +38,5 @@ export async function createSessionToken(payload: {
 
 export async function endSession() {
   cookies().delete(process.env.COOKIE_NAME!)
+  redirect('/login')
 }
