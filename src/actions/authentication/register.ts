@@ -30,8 +30,10 @@ export async function register(
     }
     await createSessionToken(payload)
   } catch (err) {
-    return {
-      errors: { _form: 'Cannot connect to the server' },
+    if (err instanceof Error && err.message.includes('Unique constraint')) {
+      return { errors: { email: ['This e-mail address already registered'] } }
+    } else {
+      return { errors: { _form: 'Cannot connect to the server' } }
     }
   }
 
