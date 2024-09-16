@@ -79,6 +79,9 @@
 
 @layer base {
   * {
-    @apply border-border;}
+    @apply border-border
+  }
   body {
-    @apply bg-zinc-200 text-foreground;}}
+    @apply bg-zinc-200 text-foreground
+  }
+}
