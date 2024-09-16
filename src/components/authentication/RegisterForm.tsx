@@ -17,6 +17,7 @@ import { useRouter } from 'next/navigation'
 import { useFormState } from 'react-dom'
 import { register } from '@/actions/authentication/register'
 import { ButtonFormSubmit } from '../common/Buttons'
+import { DisplayFormStateError } from '../common/DisplayFormStateError'
 
 export function RegisterForm() {
   const [formState, action] = useFormState(register, { errors: {} })
@@ -36,14 +37,17 @@ export function RegisterForm() {
             <div className="flex flex-col space-y-1.5">
               <Label htmlFor="name">Name</Label>
               <Input id="name" name="name" placeholder="Enter your name" />
+              <DisplayFormStateError message={formState.errors?.name} />
             </div>
             <div className="flex flex-col space-y-1.5">
               <Label htmlFor="email">E-mail</Label>
               <Input
                 id="email"
                 name="email"
+                type="email"
                 placeholder="Enter your e-mail address"
               />
+              <DisplayFormStateError message={formState.errors?.email} />
             </div>
             <div className="flex flex-col space-y-1.5">
               <Label htmlFor="password">Password</Label>
@@ -53,8 +57,10 @@ export function RegisterForm() {
                 name="password"
                 placeholder="Enter your password"
               />
+              <DisplayFormStateError message={formState.errors?.password} />
             </div>
           </div>
+          <DisplayFormStateError message={formState.errors?._form} />
         </CardContent>
         <CardFooter className="flex justify-between">
           <Button

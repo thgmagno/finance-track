@@ -17,6 +17,7 @@ import { useRouter } from 'next/navigation'
 import { useFormState } from 'react-dom'
 import { login } from '@/actions/authentication/login'
 import { ButtonFormSubmit } from '../common/Buttons'
+import { DisplayFormStateError } from '../common/DisplayFormStateError'
 
 export function LoginForm() {
   const [formState, action] = useFormState(login, { errors: {} })
@@ -38,8 +39,10 @@ export function LoginForm() {
               <Input
                 id="email"
                 name="email"
+                type="email"
                 placeholder="Enter your e-mail address"
               />
+              <DisplayFormStateError message={formState.errors?.email} />
             </div>
             <div className="flex flex-col space-y-1.5">
               <Label htmlFor="password">Password</Label>
@@ -49,8 +52,10 @@ export function LoginForm() {
                 name="password"
                 placeholder="Enter your password"
               />
+              <DisplayFormStateError message={formState.errors?.password} />
             </div>
           </div>
+          <DisplayFormStateError message={formState.errors?._form} />
         </CardContent>
         <CardFooter className="flex justify-between">
           <Button
