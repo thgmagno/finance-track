@@ -62,6 +62,7 @@ export function LoginForm() {
             onClick={() => replace('/create-account')}
             type="button"
             variant="link"
+            className="p-0"
           >
             Create account
           </Button>

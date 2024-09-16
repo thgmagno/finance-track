@@ -67,6 +67,7 @@ export function RegisterForm() {
             onClick={() => replace('/login')}
             type="button"
             variant="link"
+            className="p-0"
           >
             Return to login
           </Button>
