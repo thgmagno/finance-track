@@ -1,6 +1,7 @@
 'use server'
 
 import { secret } from '@/lib/helpers'
+import { Cluster, User } from '@prisma/client'
 import * as jose from 'jose'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
@@ -46,4 +47,30 @@ export async function getSession() {
   if (!token) redirect('/login')
   const { payload } = await jose.jwtVerify(token, secret)
   return payload
+}
+
+export async function updateSession({
+  user,
+  cluster,
+}: {
+  user?: User
+  cluster?: Cluster
+}) {
+  const { sub, name, cluster: oldCluster, clusterId } = await getSession()
+
+  const payload = {
+    sub: user?.id ?? sub,
+    name: user?.name ?? name,
+    cluster: cluster?.name ?? oldCluster,
+    clusterId: cluster?.id ?? clusterId,
+  }
+
+  return createSessionToken(
+    payload as {
+      sub: string
+      name: string
+      cluster?: string
+      clusterId?: string | null
+    },
+  )
 }

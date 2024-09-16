@@ -66,8 +66,8 @@ async function createTokenForUser(user: any) {
   const payload = {
     sub: String(user.id),
     name: user.name,
-    cluster: '',
-    clusterId: user.clusterId,
+    cluster: String(user.cluster),
+    clusterId: String(user.clusterId),
   }
 
   return createSessionToken(payload)
