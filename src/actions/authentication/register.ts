@@ -1,11 +1,10 @@
 'use server'
 
-import { RegisterSchema } from '@/lib/schemas/authentication'
-import { RegisterFormState } from '@/lib/states/authentication'
 import { createUser } from '@/actions/users'
-import { createSessionToken } from './session'
 import { redirect } from 'next/navigation'
 import { hashValue } from '@/lib/helpers'
+import { createPayloadAndTokenForUser } from './session'
+import { RegisterFormState, RegisterSchema } from '@/lib/models/authentication'
 
 export async function register(
   formState: RegisterFormState,
@@ -22,13 +21,8 @@ export async function register(
 
   try {
     const createdUser = await createUser(name, email, hash)
-    const payload = {
-      sub: createdUser.id,
-      name: createdUser.name,
-      cluster: '',
-      clusterId: createdUser.clusterId,
-    }
-    await createSessionToken(payload)
+
+    await createPayloadAndTokenForUser(createdUser)
   } catch (err) {
     if (err instanceof Error && err.message.includes('Unique constraint')) {
       return { errors: { email: ['This e-mail address already registered'] } }

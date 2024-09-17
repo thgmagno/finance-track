@@ -5,6 +5,7 @@ import { Cluster, User } from '@prisma/client'
 import * as jose from 'jose'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { getCluster } from '../clusters'
 
 export async function openSessionToken(
   token: string,
@@ -73,4 +74,22 @@ export async function updateSession({
       clusterId?: string | null
     },
   )
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function createPayloadAndTokenForUser(user: any) {
+  const cluster = user.clusterId
+    ? await getCluster({ id: user.clusterId }).then(
+        (clusters) => clusters[0].name,
+      )
+    : ''
+
+  const payload = {
+    sub: String(user.id),
+    name: user.name,
+    cluster,
+    clusterId: user.clusterId ?? '',
+  }
+
+  return createSessionToken(payload)
 }

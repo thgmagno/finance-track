@@ -1,7 +1,11 @@
 'use server'
 
 import { prisma } from '@/lib/prisma'
-import { updateSession } from '../authentication/session'
+import { getSession, updateSession } from '../authentication/session'
+import {
+  CreateClusterFormState,
+  CreateClusterSchema,
+} from '@/lib/models/cluster'
 
 export async function getCluster({ id, name }: { id?: string; name?: string }) {
   const cluster = await prisma.cluster.findMany({
@@ -25,12 +29,55 @@ export async function getCluster({ id, name }: { id?: string; name?: string }) {
   return cluster
 }
 
-export async function createCluster(name: string, ownerId: string) {
-  const cluster = await prisma.cluster.create({
-    data: { name, ownerId },
+export async function createCluster(
+  formState: CreateClusterFormState,
+  formData: FormData,
+): Promise<CreateClusterFormState> {
+  const { sub } = await getSession()
+  if (!sub) {
+    return { errors: { _form: 'Not autorized' } }
+  }
+
+  const validationResult = validateClusterData(formData)
+  if (!validationResult.success) {
+    return { errors: validationResult.errors! }
+  }
+
+  const { clusterName } = validationResult.data!
+
+  try {
+    const cluster = await prisma.cluster.create({
+      data: { name: clusterName, ownerId: sub },
+    })
+
+    await updateSession({ cluster })
+  } catch (err) {
+    return {
+      errors: { _form: 'Internal server error' },
+    }
+  }
+
+  return { errors: {} }
+}
+
+function validateClusterData(formData: FormData) {
+  const parsed = CreateClusterSchema.safeParse({
+    clusterName: formData.get('clusterName'),
   })
 
-  await updateSession({ cluster })
+  if (!parsed.success) {
+    return { success: false, errors: parsed.error.flatten().fieldErrors }
+  }
 
-  return cluster
+  return { success: true, data: parsed.data }
+}
+
+export async function deleteCluster() {
+  // TODO:
+  // removeAllClusterParticipants
+  // deleteAllClusterTransactions
+  // deleteAllClusterInvites
+  // deleteAllClusterCategories
+  // deleteAllClusterCreditCardInstallments
+  // deleteAllClusterSavings
 }

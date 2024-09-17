@@ -77,7 +77,7 @@ export function ManageInvitations() {
         />
         {loading && (
           <div className="flex h-10 items-center justify-center">
-            <Loader2 className="text-muted-foreground animate-spin" />
+            <Loader2 className="animate-spin text-muted-foreground" />
           </div>
         )}
         {findUser && typeof findUser === 'object' && (
@@ -92,7 +92,7 @@ export function ManageInvitations() {
           </div>
         )}
         {findUser && typeof findUser === 'string' && (
-          <p className="text-muted-foreground text-center font-medium">
+          <p className="text-center font-medium text-muted-foreground">
             {findUser}
           </p>
         )}

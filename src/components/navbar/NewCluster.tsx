@@ -13,11 +13,15 @@ import {
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { Plus } from 'lucide-react'
 import { SyntheticEvent, useState } from 'react'
-import { Input } from '../ui/input'
-import { Label } from '../ui/label'
-import { ButtonFormSubmit } from '../common/Buttons'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { ButtonFormSubmit } from '@/components/common/Buttons'
+import { useFormState } from 'react-dom'
+import { createCluster } from '@/actions/clusters'
+import { DisplayFormStateError } from '@/components/common/DisplayFormStateError'
 
 export function NewCluster() {
+  const [formState, action] = useFormState(createCluster, { errors: {} })
   const [open, setOpen] = useState(false)
 
   const handleModal = (e: SyntheticEvent) => {
@@ -40,7 +44,7 @@ export function NewCluster() {
             Set up a new cluster and invite collaborators to join.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <form action="" className="flex flex-col space-y-3">
+        <form action={action} className="flex flex-col space-y-3">
           <div className="flex flex-col space-y-1.5">
             <Label htmlFor="clusterName">Cluster name</Label>
             <Input
@@ -48,7 +52,9 @@ export function NewCluster() {
               name="clusterName"
               placeholder="Enter cluster name"
             />
+            <DisplayFormStateError message={formState.errors?.clusterName} />
           </div>
+          <DisplayFormStateError message={formState.errors?._form} />
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <ButtonFormSubmit title="Save" className="min-w-[61.38px]" />

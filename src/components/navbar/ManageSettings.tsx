@@ -11,12 +11,14 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
-import { Settings } from 'lucide-react'
+import { Settings, Trash2 } from 'lucide-react'
 import { SyntheticEvent, useEffect, useState } from 'react'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { ButtonFormSubmit } from '../common/Buttons'
 import { getSession } from '@/actions/authentication/session'
+import { Button } from '../ui/button'
+import { DeleteClusterAlert } from './DeleteClusterAlert'
 
 interface DataProps {
   username: string
@@ -70,14 +72,17 @@ export function ManageSettings() {
             />
           </div>
           {data?.clusterName && (
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="clusterName">My cluster</Label>
-              <Input
-                id="clusterName"
-                name="clusterName"
-                defaultValue={data.clusterName}
-                placeholder="Enter cluster name"
-              />
+            <div className="flex items-end justify-between">
+              <div className="flex w-full flex-col space-y-1.5">
+                <Label htmlFor="clusterName">My cluster</Label>
+                <Input
+                  id="clusterName"
+                  name="clusterName"
+                  defaultValue={data.clusterName}
+                  placeholder="Enter cluster name"
+                />
+              </div>
+              <DeleteClusterAlert />
             </div>
           )}
           <AlertDialogFooter>

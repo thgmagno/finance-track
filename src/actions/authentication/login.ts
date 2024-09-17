@@ -3,9 +3,8 @@
 import * as bcrypt from 'bcrypt'
 import { getUser } from '../users'
 import { redirect } from 'next/navigation'
-import { LoginSchema } from '@/lib/schemas/authentication'
-import { LoginFormState } from '@/lib/states/authentication'
-import { createSessionToken } from './session'
+import { createPayloadAndTokenForUser } from './session'
+import { LoginFormState, LoginSchema } from '@/lib/models/authentication'
 
 export async function login(
   formState: LoginFormState,
@@ -24,7 +23,7 @@ export async function login(
       return { errors: authResult.errors! }
     }
 
-    await createTokenForUser(authResult.user)
+    await createPayloadAndTokenForUser(authResult.user)
   } catch (err) {
     return {
       errors: { _form: 'Cannot connect to the server' },
@@ -59,16 +58,4 @@ async function authenticateUser(email: string, password: string) {
   }
 
   return { success: true, user }
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function createTokenForUser(user: any) {
-  const payload = {
-    sub: String(user.id),
-    name: user.name,
-    cluster: String(user.cluster),
-    clusterId: String(user.clusterId),
-  }
-
-  return createSessionToken(payload)
 }
