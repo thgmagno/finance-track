@@ -39,6 +39,8 @@ export function DeleteClusterAlert() {
     setLoading(true)
 
     const res = await deleteCluster()
+    setLoading(false)
+
     if (!res.success) {
       return toast({
         title: 'An error ocurred',
@@ -46,8 +48,6 @@ export function DeleteClusterAlert() {
         variant: 'destructive',
       })
     }
-
-    setLoading(false)
     setOpen(false)
 
     return toast({
