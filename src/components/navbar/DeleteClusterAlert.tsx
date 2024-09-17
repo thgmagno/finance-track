@@ -16,21 +16,43 @@ import { SyntheticEvent, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
+import { useToast } from '@/hooks/use-toast'
+import { deleteCluster } from '@/actions/clusters'
 
 export function DeleteClusterAlert() {
   const confirmationPrompt = 'delete this cluster'
 
   const [open, setOpen] = useState(false)
   const [confirmation, setConfirmation] = useState('')
+  const [loading, setLoading] = useState(false)
+  const { toast } = useToast()
 
   const handleOpenAlertDialog = (e: SyntheticEvent) => {
     e.preventDefault()
     setOpen(true)
   }
 
-  const handleDeleteCluster = (e: SyntheticEvent) => {
+  const handleDeleteCluster = async (e: SyntheticEvent) => {
     e.preventDefault()
     if (confirmation !== confirmationPrompt) return null
+
+    setLoading(true)
+
+    const res = await deleteCluster()
+    if (!res.success) {
+      return toast({
+        title: 'An error ocurred',
+        description: res.message,
+        variant: 'destructive',
+      })
+    }
+
+    setLoading(false)
+    setOpen(false)
+
+    return toast({
+      description: res.message,
+    })
   }
 
   return (
@@ -73,9 +95,9 @@ export function DeleteClusterAlert() {
           <AlertDialogAction
             onClick={handleDeleteCluster}
             className="select-none bg-red-600 hover:bg-red-700 disabled:bg-zinc-500"
-            disabled={confirmation !== confirmationPrompt}
+            disabled={confirmation !== confirmationPrompt || loading}
           >
-            Confirm
+            {loading ? 'Await...' : 'Confirm'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

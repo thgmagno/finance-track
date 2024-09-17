@@ -23,14 +23,16 @@ model User {
 }
 
 model Cluster {
-  id            String          @id @default(cuid())
-  name          String
-  ownerId       String          @map("owner_id")
-  createdAt     DateTime        @default(now()) @map("created_at") @db.Date
-  updatedAt     DateTime        @updatedAt @map("updated_at") @db.Date
-  ClusterInvite ClusterInvite[]
-  Category      Category[]
-  Transaction   Transaction[]
+  id                    String                  @id @default(cuid())
+  name                  String
+  ownerId               String                  @map("owner_id")
+  createdAt             DateTime                @default(now()) @map("created_at") @db.Date
+  updatedAt             DateTime                @updatedAt @map("updated_at") @db.Date
+  ClusterInvite         ClusterInvite[]
+  Category              Category[]
+  PaymentMethod         PaymentMethod[]
+  Transaction           Transaction[]
+  CreditCardInstallment CreditCardInstallment[]
 
   owner  User     @relation(fields: [ownerId], references: [id])
   Saving Saving[]
@@ -45,7 +47,7 @@ model ClusterInvite {
   clusterId String?  @map("cluster_id")
   userId    String?  @map("user_id")
 
-  cluster Cluster? @relation(fields: [clusterId], references: [id])
+  cluster Cluster? @relation(fields: [clusterId], references: [id], onDelete: Cascade)
   user    User?    @relation(fields: [userId], references: [id])
 
   @@map("cluster_invite")
@@ -58,15 +60,18 @@ model Category {
   clusterId   String?       @map("cluster_id")
   Transaction Transaction[]
 
-  cluster Cluster? @relation(fields: [clusterId], references: [id])
+  cluster Cluster? @relation(fields: [clusterId], references: [id], onDelete: Cascade)
   Saving  Saving[]
 
   @@map("categories")
 }
 
 model PaymentMethod {
-  id          String        @id @default(cuid())
+  id          String  @id @default(cuid())
   description String
+  clusterId   String? @map("cluster_id")
+
+  cluster     Cluster?      @relation(fields: [clusterId], references: [id], onDelete: Cascade)
   transaction Transaction[]
 
   @@map("payment_method")
@@ -84,7 +89,7 @@ model Transaction {
   paymentMethodId String? @map("payment_method_id")
 
   category              Category?               @relation(fields: [categoryId], references: [id])
-  cluster               Cluster?                @relation(fields: [clusterId], references: [id])
+  cluster               Cluster?                @relation(fields: [clusterId], references: [id], onDelete: Cascade)
   paymentMethod         PaymentMethod?          @relation(fields: [paymentMethodId], references: [id])
   CreditCardInstallment CreditCardInstallment[]
 
@@ -99,6 +104,9 @@ model CreditCardInstallment {
   installmentValue  Int         @map("installment_value")
   year              Int
   month             Int
+  clusterId         String?     @map("cluster_id")
+
+  cluster Cluster? @relation(fields: [clusterId], references: [id], onDelete: Cascade)
 
   @@map("credit_card_installment")
 }
@@ -114,7 +122,7 @@ model Saving {
   clusterId   String    @map("cluster_id")
 
   category Category @relation(fields: [categoryId], references: [id])
-  cluster  Cluster  @relation(fields: [clusterId], references: [id])
+  cluster  Cluster  @relation(fields: [clusterId], references: [id], onDelete: Cascade)
 
   @@map("savings")
 }

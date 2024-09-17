@@ -93,3 +93,7 @@ export async function createPayloadAndTokenForUser(user: any) {
 
   return createSessionToken(payload)
 }
+
+export async function removeClusterDataFromToken(sub: string, name: string) {
+  return createSessionToken({ sub, name, cluster: '', clusterId: '' })
+}

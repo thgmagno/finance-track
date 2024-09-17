@@ -1,7 +1,11 @@
 'use server'
 
 import { prisma } from '@/lib/prisma'
-import { getSession, updateSession } from '../authentication/session'
+import {
+  getSession,
+  removeClusterDataFromToken,
+  updateSession,
+} from '@/actions/authentication/session'
 import {
   CreateClusterFormState,
   CreateClusterSchema,
@@ -50,7 +54,13 @@ export async function createCluster(
       data: { name: clusterName, ownerId: sub },
     })
 
-    await updateSession({ cluster })
+    await Promise.all([
+      prisma.user.update({
+        data: { clusterId: cluster.id },
+        where: { id: sub },
+      }),
+      updateSession({ cluster }),
+    ])
   } catch (err) {
     return {
       errors: { _form: 'Internal server error' },
@@ -73,11 +83,47 @@ function validateClusterData(formData: FormData) {
 }
 
 export async function deleteCluster() {
-  // TODO:
-  // removeAllClusterParticipants
-  // deleteAllClusterTransactions
-  // deleteAllClusterInvites
-  // deleteAllClusterCategories
-  // deleteAllClusterCreditCardInstallments
-  // deleteAllClusterSavings
+  try {
+    const { sub, name, clusterId } = await getSession()
+
+    const isValid = typeof clusterId === 'string' && typeof name === 'string'
+
+    if (!isValid) {
+      return { success: false, message: 'Invalid parameters' }
+    }
+
+    const cluster = await prisma.cluster.findUniqueOrThrow({
+      where: { id: clusterId },
+    })
+
+    if (cluster.ownerId !== sub) {
+      return { success: false, message: 'Not autorized' }
+    }
+
+    const participantsIds = await prisma.user
+      .findMany({
+        where: { clusterId },
+        select: { id: true },
+      })
+      .then((list) => list.map((user) => user.id))
+
+    if (participantsIds.length) {
+      await prisma.user.updateMany({
+        data: { clusterId: null },
+        where: { id: { in: participantsIds } },
+      })
+    }
+
+    await Promise.all([
+      prisma.cluster.delete({ where: { id: cluster.id } }),
+      removeClusterDataFromToken(sub, name),
+    ])
+
+    return { success: true, message: 'Cluster deleted successfully' }
+  } catch (err) {
+    return {
+      success: false,
+      message: 'Internal server error',
+    }
+  }
 }

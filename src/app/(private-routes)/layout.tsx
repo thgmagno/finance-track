@@ -1,4 +1,5 @@
 import { AuthenticatedNavbar } from '@/components/navbar/AuthenticatedNavbar'
+import { Providers } from './providers'
 
 export default async function RootLayout({
   children,
@@ -6,9 +7,11 @@ export default async function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <div className="mx-auto min-h-screen max-w-3xl bg-zinc-50 shadow">
-      <AuthenticatedNavbar />
-      {children}
-    </div>
+    <Providers>
+      <div className="mx-auto min-h-screen max-w-3xl bg-zinc-50 shadow">
+        <AuthenticatedNavbar />
+        {children}
+      </div>
+    </Providers>
   )
 }
