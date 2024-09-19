@@ -14,20 +14,28 @@ model User {
   email         String          @unique
   password      String
   clusterId     String?         @map("cluster_id")
-  createdAt     DateTime        @default(now()) @map("created_at") @db.Date
-  updatedAt     DateTime        @updatedAt @map("updated_at") @db.Date
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
   cluster       Cluster[]
   ClusterInvite ClusterInvite[]
 
   @@map("users")
 }
 
+model Session {
+  userId    String @unique @map("user_id")
+  token     String
+  timestamp Int
+
+  @@map("sessions")
+}
+
 model Cluster {
   id                    String                  @id @default(cuid())
   name                  String
   ownerId               String                  @map("owner_id")
-  createdAt             DateTime                @default(now()) @map("created_at") @db.Date
-  updatedAt             DateTime                @updatedAt @map("updated_at") @db.Date
+  createdAt             DateTime                @default(now()) @map("created_at")
+  updatedAt             DateTime                @updatedAt @map("updated_at")
   ClusterInvite         ClusterInvite[]
   Category              Category[]
   PaymentMethod         PaymentMethod[]
@@ -42,7 +50,7 @@ model Cluster {
 
 model ClusterInvite {
   id        String   @id @default(cuid())
-  createdAt DateTime @default(now()) @map("created_at") @db.Date
+  createdAt DateTime @default(now()) @map("created_at")
   status    String   @default("pending")
   clusterId String?  @map("cluster_id")
   userId    String?  @map("user_id")
@@ -113,8 +121,8 @@ model CreditCardInstallment {
 
 model Saving {
   id          String    @id @default(cuid())
-  startAt     DateTime  @default(now()) @map("start_at") @db.Date
-  endAt       DateTime? @map("end_at") @db.Date
+  startAt     DateTime  @default(now()) @map("start_at")
+  endAt       DateTime? @map("end_at")
   description String
   value       Float
   status      Boolean

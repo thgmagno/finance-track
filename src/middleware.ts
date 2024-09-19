@@ -17,8 +17,7 @@ export async function middleware(request: NextRequest) {
           return NextResponse.redirect(new URL('/', request.url))
         }
       } catch (error) {
-        cookies().delete(process.env.COOKIE_NAME!)
-        return NextResponse.redirect(new URL('/login', request.url))
+        NextResponse.redirect(new URL('/api/logout', request.url))
       }
     }
     return NextResponse.next()
@@ -31,13 +30,11 @@ export async function middleware(request: NextRequest) {
   try {
     const { exp } = (await jose.jwtVerify(token, secret)).payload
     if (exp && exp * 1000 < new Date().getTime()) {
-      cookies().delete(process.env.COOKIE_NAME!)
-      return NextResponse.redirect(new URL('/login', request.url))
+      NextResponse.redirect(new URL('/api/logout', request.url))
     }
     return NextResponse.next()
   } catch (error) {
-    cookies().delete(process.env.COOKIE_NAME!)
-    return NextResponse.redirect(new URL('/login', request.url))
+    NextResponse.redirect(new URL('/api/logout', request.url))
   }
 }
 
