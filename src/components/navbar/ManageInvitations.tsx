@@ -13,10 +13,13 @@ import {
 } from '@/components/ui/alert-dialog'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { Loader2, UserPlus } from 'lucide-react'
-import { SyntheticEvent, useRef, useState } from 'react'
+import { SyntheticEvent, useState } from 'react'
 import { Input } from '../ui/input'
 import { fetchUsersByEmailExcludingCurrentUser } from '@/actions/users'
 import { Button } from '../ui/button'
+import { toast } from '@/hooks/use-toast'
+import { z } from 'zod'
+import { inviteUserForCluster } from '@/actions/clusters'
 
 interface FindUser {
   name: string
@@ -27,7 +30,7 @@ export function ManageInvitations() {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const [sendLoading, setSendLoading] = useState(false)
   const [findUser, setFindUser] = useState<FindUser | string>('')
 
   const handleModal = (e: SyntheticEvent) => {
@@ -37,21 +40,53 @@ export function ManageInvitations() {
 
   const handleSearch = async (e: SyntheticEvent) => {
     e.preventDefault()
-    if (!search && inputRef.current) {
-      inputRef.current.focus()
-      setTimeout(() => {
-        inputRef.current?.blur()
-      }, 150)
-      setTimeout(() => {
-        inputRef.current?.focus()
-      }, 300)
-      return
+
+    const schema = z.object({
+      searchEmail: z.string().email(),
+    })
+
+    const parsed = schema.safeParse({
+      searchEmail: search,
+    })
+
+    if (!parsed.success) {
+      const errorMessages = parsed.error.errors
+        .map((err) => err.message)
+        .join(', ')
+      return toast({
+        description: errorMessages,
+        variant: 'destructive',
+      })
     }
+
     setFindUser('')
     setLoading(true)
     const user = await fetchUsersByEmailExcludingCurrentUser(search)
     setLoading(false)
     setFindUser(user || 'No users found')
+  }
+
+  const handleSendInvite = async (userEmail: string) => {
+    setSendLoading(true)
+    try {
+      const { success, message } = await inviteUserForCluster(userEmail)
+      if (!success) {
+        return toast({
+          description: message,
+          variant: 'destructive',
+        })
+      }
+      return toast({
+        description: message,
+      })
+    } catch (err) {
+      return toast({
+        description: 'An error ocurred. Please try again later',
+        variant: 'destructive',
+      })
+    } finally {
+      setSendLoading(false)
+    }
   }
 
   return (
@@ -70,7 +105,6 @@ export function ManageInvitations() {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <Input
-          ref={inputRef}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="E-mail addresses"
@@ -86,8 +120,14 @@ export function ManageInvitations() {
               <span className="text-sm">{findUser.name}</span>
               <span className="text-xs">{findUser.email}</span>
             </p>
-            <Button size="sm" variant="outline">
-              Send invite
+            <Button
+              onClick={() => handleSendInvite(findUser.email)}
+              size="sm"
+              variant="outline"
+              className="disabled:bg-zinc-300"
+              disabled={sendLoading}
+            >
+              {sendLoading ? 'Loading...' : 'Send invite'}
             </Button>
           </div>
         )}

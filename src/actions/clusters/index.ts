@@ -10,6 +10,7 @@ import {
   CreateClusterFormState,
   CreateClusterSchema,
 } from '@/lib/models/cluster'
+import { revalidatePath } from 'next/cache'
 
 export async function getCluster({ id, name }: { id?: string; name?: string }) {
   const cluster = await prisma.cluster.findMany({
@@ -97,7 +98,10 @@ export async function deleteCluster() {
     })
 
     if (cluster.ownerId !== sub) {
-      return { success: false, message: 'Not autorized' }
+      return {
+        success: false,
+        message: 'Only the cluster owner can delete it.',
+      }
     }
 
     const participantsIds = await prisma.user
@@ -126,4 +130,76 @@ export async function deleteCluster() {
       message: 'Internal server error',
     }
   }
+}
+
+export async function inviteUserForCluster(userEmail: string) {
+  try {
+    const { clusterId } = await getSession()
+    const alreadySended = await prisma.clusterInvite.findFirst({
+      where: {
+        clusterId: String(clusterId),
+        user: { email: userEmail },
+        status: 'pending',
+      },
+    })
+    if (alreadySended) {
+      return {
+        success: false,
+        message:
+          'An invitation has already been sent to this email address and is still pending.',
+      }
+    }
+
+    await prisma.user
+      .findUniqueOrThrow({
+        where: {
+          email: userEmail,
+        },
+      })
+      .then(
+        async (user) =>
+          await prisma.clusterInvite.create({
+            data: { clusterId: String(clusterId), userId: user.id },
+          }),
+      )
+  } catch (error) {
+    return {
+      success: false,
+      message:
+        'Unable to send the invitation to this email address. Please try again later.',
+    }
+  }
+
+  return { success: true, message: 'The invitation was sent successfully.' }
+}
+
+export async function acceptInviteCluster(clusterId: string) {
+  try {
+    const { sub } = await getSession()
+    await Promise.all([
+      prisma.$executeRaw`CALL handle_cluster_invite(${clusterId}, ${sub}, 'accept')`,
+      prisma.cluster
+        .findUniqueOrThrow({
+          where: { id: clusterId },
+        })
+        .then((cluster) => updateSessionAndStoreToken({ cluster })),
+    ])
+  } catch (error) {
+    return { success: false, message: 'An error ocurred. Please try again' }
+  }
+
+  revalidatePath('/')
+  return { success: true, message: 'The invitation has been accepted' }
+}
+
+export async function rejectInviteCluster(clusterId: string) {
+  try {
+    const { sub } = await getSession()
+    await prisma.$executeRaw`CALL handle_cluster_invite(${clusterId}, ${sub}, 'reject')`
+  } catch (error) {
+    return { success: false, message: 'An error ocurred. Please try again' }
+  }
+
+  revalidatePath('/')
+  return { success: true, message: 'The invitation has been rejected' }
 }

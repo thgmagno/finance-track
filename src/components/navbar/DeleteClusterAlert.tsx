@@ -97,7 +97,7 @@ export function DeleteClusterAlert() {
             className="select-none bg-red-600 hover:bg-red-700 disabled:bg-zinc-500"
             disabled={confirmation !== confirmationPrompt || loading}
           >
-            {loading ? 'Await...' : 'Confirm'}
+            {loading ? 'Loading...' : 'Confirm'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
