@@ -3,8 +3,8 @@
 import { prisma } from '@/lib/prisma'
 import {
   getSession,
-  removeClusterDataFromToken,
-  updateSession,
+  removeClusterFromSessionAndStoreToken,
+  updateSessionAndStoreToken,
 } from '@/actions/authentication/session'
 import {
   CreateClusterFormState,
@@ -59,7 +59,7 @@ export async function createCluster(
         data: { clusterId: cluster.id },
         where: { id: sub },
       }),
-      updateSession({ cluster }),
+      updateSessionAndStoreToken({ cluster }),
     ])
   } catch (err) {
     return {
@@ -116,7 +116,7 @@ export async function deleteCluster() {
 
     await Promise.all([
       prisma.cluster.delete({ where: { id: cluster.id } }),
-      removeClusterDataFromToken(sub, name),
+      removeClusterFromSessionAndStoreToken(sub, name),
     ])
 
     return { success: true, message: 'Cluster deleted successfully' }

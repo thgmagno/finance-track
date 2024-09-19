@@ -29,15 +29,13 @@ export async function createSessionToken(payload: {
     .setExpirationTime('7d')
     .sign(secret)
 
-  const { sub, exp } = await openSessionToken(session)
+  const { exp } = await openSessionToken(session)
 
   cookies().set(process.env.COOKIE_NAME as string, session, {
     expires: new Date((exp as number) * 1000),
     path: '/',
     httpOnly: true,
   })
-
-  await storeSessionToken(String(sub), session)
 
   return session
 }
@@ -54,7 +52,7 @@ export async function getSession() {
   return payload
 }
 
-export async function updateSession({
+export async function updateSessionAndStoreToken({
   user,
   cluster,
 }: {
@@ -64,22 +62,14 @@ export async function updateSession({
   const { sub, name, cluster: oldCluster, clusterId } = await getSession()
 
   const payload = {
-    sub: user?.id ?? sub,
-    name: user?.name ?? name,
-    cluster: cluster?.name ?? oldCluster,
-    clusterId: cluster?.id ?? clusterId,
+    sub: user?.id ?? String(sub),
+    name: user?.name ?? String(name),
+    cluster: cluster?.name ?? String(oldCluster),
+    clusterId: cluster?.id ?? String(clusterId),
     createdAt: currentTimestamp(),
   }
 
-  return createSessionToken(
-    payload as {
-      sub: string
-      name: string
-      cluster?: string
-      clusterId?: string | null
-      createdAt: number
-    },
-  )
+  await Promise.all([createSessionToken(payload), storeSessionToken(payload)])
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -101,21 +91,45 @@ export async function createPayloadAndTokenForUser(user: any) {
   return createSessionToken(payload)
 }
 
-export async function removeClusterDataFromToken(sub: string, name: string) {
-  return createSessionToken({
+export async function removeClusterFromSessionAndStoreToken(
+  sub: string,
+  name: string,
+) {
+  const payload = {
     sub,
     name,
     cluster: '',
     clusterId: '',
     createdAt: currentTimestamp(),
-  })
+  }
+
+  await Promise.all([createSessionToken(payload), storeSessionToken(payload)])
 }
 
-async function storeSessionToken(userId: string, sessionToken: string) {
+async function storeSessionToken(payload: {
+  sub: string
+  name: string
+  cluster?: string
+  clusterId?: string | null
+  createdAt: number
+}) {
+  const session = await new jose.SignJWT(payload)
+    .setProtectedHeader({
+      alg: 'HS256',
+    })
+    .setExpirationTime('7d')
+    .sign(secret)
+
+  const { sub } = await openSessionToken(session)
+
   return prisma.session.upsert({
-    where: { userId },
-    update: { token: sessionToken, timestamp: currentTimestamp() },
-    create: { userId, token: sessionToken, timestamp: currentTimestamp() },
+    where: { userId: sub },
+    update: { token: session, timestamp: currentTimestamp() },
+    create: {
+      userId: String(sub),
+      token: session,
+      timestamp: currentTimestamp(),
+    },
   })
 }
 
