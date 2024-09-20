@@ -85,3 +85,9 @@
     @apply bg-zinc-200 text-foreground
   }
 }
+
+@layer components {
+  .drawer-trigger {
+    @apply fixed bottom-5 right-5
+  }
+}

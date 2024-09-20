@@ -11,13 +11,12 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
-import { Settings, Trash2 } from 'lucide-react'
+import { Settings } from 'lucide-react'
 import { SyntheticEvent, useEffect, useState } from 'react'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { ButtonFormSubmit } from '../common/Buttons'
 import { getSession } from '@/actions/authentication/session'
-import { Button } from '../ui/button'
 import { DeleteClusterAlert } from './DeleteClusterAlert'
 
 interface DataProps {

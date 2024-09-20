@@ -1,6 +1,7 @@
 import { getSession } from '@/actions/authentication/session'
 import { DropdownUserMenu } from './DropdownUserMenu'
 import { fetchDataUser } from '@/actions/users'
+import { Title } from './Title'
 
 export async function AuthenticatedNavbar() {
   const { sub, name, cluster } = await getSession()
@@ -8,7 +9,7 @@ export async function AuthenticatedNavbar() {
 
   return (
     <nav className="flex justify-between p-5">
-      <h1>Finance Track</h1>
+      <Title />
       <DropdownUserMenu
         username={String(name)}
         clusterName={String(cluster)}
