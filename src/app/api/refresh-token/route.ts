@@ -15,5 +15,5 @@ export async function GET(request: Request) {
     return Response.redirect(new URL('/logout', request.url))
   }
 
-  return Response.redirect(new URL('/login', request.url))
+  return Response.redirect(new URL('/authentication', request.url))
 }

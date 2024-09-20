@@ -42,12 +42,12 @@ export async function createSessionToken(payload: {
 
 export async function endSession() {
   cookies().delete(process.env.COOKIE_NAME!)
-  redirect('/login')
+  redirect('/authentication')
 }
 
 export async function getSession() {
   const token = cookies().get(process.env.COOKIE_NAME!)?.value
-  if (!token) redirect('/login')
+  if (!token) redirect('/authentication')
   const { payload } = await jose.jwtVerify(token, secret)
   return payload
 }
