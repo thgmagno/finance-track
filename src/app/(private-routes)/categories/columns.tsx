@@ -1,7 +1,7 @@
 'use client'
 
 import { ColumnDef } from '@tanstack/react-table'
-import { ArrowUpDown, MoreHorizontal } from 'lucide-react'
+import { MoreHorizontal } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -13,13 +13,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Checkbox } from '@/components/ui/checkbox'
-
-export type Payment = {
-  id: string
-  amount: number
-  status: 'pending' | 'processing' | 'success' | 'failed'
-  email: string
-}
+import { Payment } from './mocks'
+import { Badge } from '@/components/ui/badge'
 
 export const columns: ColumnDef<Payment>[] = [
   {
@@ -45,20 +40,33 @@ export const columns: ColumnDef<Payment>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: 'status',
-    header: 'Status',
+    accessorKey: 'description',
+    header: 'Description',
   },
   {
-    accessorKey: 'email',
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          Email <ArrowUpDown className="ml-2 h-4 w-4" />{' '}
-        </Button>
-      )
+    accessorKey: 'category',
+    header: 'Category',
+  },
+  {
+    accessorKey: 'date',
+    header: 'Date',
+    cell: ({ row }) => {
+      const date = String(row.getValue('date')).concat('-1')
+      const formatted = new Date(date).toLocaleDateString('pt-br', {
+        month: 'short',
+        year: '2-digit',
+      })
+
+      return <div className="min-w-[70px]">{formatted}</div>
+    },
+  },
+  {
+    accessorKey: 'status',
+    header: 'Status',
+    cell: ({ row }) => {
+      const value: 'open' | 'close' | 'overdue' = row.getValue('status')
+
+      return <Badge variant={value}>{value}</Badge>
     },
   },
   {
@@ -97,7 +105,9 @@ export const columns: ColumnDef<Payment>[] = [
             <DropdownMenuSeparator />
             <DropdownMenuItem>View customer</DropdownMenuItem>
             <DropdownMenuItem>View payment details</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => alert(`Deleting ${row.id}...`)}>
+            <DropdownMenuItem
+              onClick={() => alert(`Deleting ${payment.id}...`)}
+            >
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
