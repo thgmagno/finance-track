@@ -5,7 +5,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu'
-import { Wallet, Grid2x2Plus } from 'lucide-react'
+import { Wallet, Grid2x2Plus, CreditCard } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 export function FinanceOptions() {
@@ -27,11 +27,11 @@ export function FinanceOptions() {
             <span>Categories</span>
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => replace('/payment-methods')}
+            onClick={() => replace('/methods')}
             className="cursor-pointer"
           >
-            <Grid2x2Plus className="mr-2 h-4 w-4" />
-            <span>Payment Methods</span>
+            <CreditCard className="mr-2 h-4 w-4" />
+            <span>Methods</span>
           </DropdownMenuItem>
         </DropdownMenuSubContent>
       </DropdownMenuPortal>

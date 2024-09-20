@@ -20,7 +20,9 @@ export function Breadcrumb({ page }: Props) {
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
-          <BreadcrumbPage>{page}</BreadcrumbPage>
+          <BreadcrumbPage className="cursor-default select-none">
+            {page}
+          </BreadcrumbPage>
         </BreadcrumbItem>
       </BreadcrumbList>
     </BreadcrumbContainer>
