@@ -31,14 +31,17 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import clsx from 'clsx'
+import { Calculator } from 'lucide-react'
+import { Badge } from '../ui/badge'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends { amount: number }, TValue>({
   data,
   columns,
 }: DataTableProps<TData, TValue>) {
@@ -46,6 +49,8 @@ export function DataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = useState({})
+  const [selectedTotal, setSelectedTotal] = useState('R$ 0,00')
+  const [isVisible, setIsVisible] = useState(false)
 
   const table = useReactTable({
     data,
@@ -65,6 +70,28 @@ export function DataTable<TData, TValue>({
       rowSelection,
     },
   })
+
+  useEffect(() => {
+    const selectedRows = table.getFilteredSelectedRowModel().rows
+    const total = selectedRows.reduce(
+      (sum, row) => sum + row.original.amount,
+      0,
+    )
+    const formatted = Intl.NumberFormat('pt-br', {
+      style: 'currency',
+      currency: 'BRL',
+    }).format(total)
+    setSelectedTotal(total ? formatted : 'R$ 0,00')
+  }, [rowSelection, table])
+
+  useEffect(() => {
+    if (selectedTotal !== 'R$ 0,00') {
+      setIsVisible(true)
+    } else {
+      const timer = setTimeout(() => setIsVisible(false), 500)
+      return () => clearTimeout(timer)
+    }
+  }, [selectedTotal])
 
   return (
     <div>
@@ -178,6 +205,19 @@ export function DataTable<TData, TValue>({
           Next
         </Button>
       </div>
+      {isVisible && (
+        <div
+          className={clsx('fixed bottom-5 right-5', {
+            'slide-up': selectedTotal !== 'R$ 0,00',
+            'slide-down': selectedTotal === 'R$ 0,00',
+          })}
+        >
+          <Badge className="text-lg">
+            <Calculator className="mr-2 h-5 w-5" />
+            {selectedTotal}
+          </Badge>
+        </div>
+      )}
     </div>
   )
 }
