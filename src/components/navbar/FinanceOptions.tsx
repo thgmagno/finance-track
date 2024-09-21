@@ -4,8 +4,16 @@ import {
   DropdownMenuPortal,
   DropdownMenuSubContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
-import { Wallet, Grid2x2Plus, CreditCard } from 'lucide-react'
+import {
+  Wallet,
+  Grid2x2Plus,
+  CreditCard,
+  PiggyBank,
+  ArrowUpFromLine,
+  ArrowDownToLine,
+} from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 export function FinanceOptions() {
@@ -32,6 +40,28 @@ export function FinanceOptions() {
           >
             <CreditCard className="mr-2 h-4 w-4" />
             <span>Methods</span>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => replace('/payments')}
+            className="cursor-pointer"
+          >
+            <ArrowUpFromLine className="mr-2 h-4 w-4" />
+            <span>Payments</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => replace('/receipts')}
+            className="cursor-pointer"
+          >
+            <ArrowDownToLine className="mr-2 h-4 w-4" />
+            <span>Receipts</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => replace('/savings')}
+            className="cursor-pointer"
+          >
+            <PiggyBank className="mr-2 h-4 w-4" />
+            <span>Savings</span>
           </DropdownMenuItem>
         </DropdownMenuSubContent>
       </DropdownMenuPortal>

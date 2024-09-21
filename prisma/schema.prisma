@@ -82,7 +82,7 @@ model Method {
   cluster     Cluster?      @relation(fields: [clusterId], references: [id], onDelete: Cascade)
   transaction Transaction[]
 
-  @@map("payment_method")
+  @@map("method")
 }
 
 model Transaction {
@@ -117,7 +117,7 @@ model Installment {
   cluster     Cluster?    @relation(fields: [clusterId], references: [id], onDelete: Cascade)
   transaction Transaction @relation(fields: [transactionId], references: [id])
 
-  @@map("credit_card_installment")
+  @@map("installment")
 }
 
 model Saving {
