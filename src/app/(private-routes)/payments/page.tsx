@@ -10,7 +10,21 @@ interface PageProps {
   }
 }
 
-export async function getData(status?: string, category?: string) {
+export default async function PaymentsPage({ searchParams }: PageProps) {
+  const data = await getData(searchParams?.status, searchParams?.category)
+  const categories = Array.from(
+    new Set(data.map((item) => item.category?.description).filter(Boolean)),
+  )
+
+  return (
+    <div className="container mx-auto pb-32 pt-5">
+      <DataTable columns={columns} data={data} />
+      <CategoryProvider categories={categories} />
+    </div>
+  )
+}
+
+async function getData(status?: string, category?: string) {
   const response = await prisma?.transaction.findMany({
     include: { category: true },
   })
@@ -29,18 +43,4 @@ export async function getData(status?: string, category?: string) {
   })
 
   return filtered
-}
-
-export default async function PaymentsPage({ searchParams }: PageProps) {
-  const data = await getData(searchParams?.status, searchParams?.category)
-  const categories = Array.from(
-    new Set(data.map((item) => item.category?.description).filter(Boolean)),
-  )
-
-  return (
-    <div className="container mx-auto pb-32 pt-5">
-      <DataTable columns={columns} data={data} />
-      <CategoryProvider categories={categories} />
-    </div>
-  )
 }
