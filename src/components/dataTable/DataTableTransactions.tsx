@@ -35,6 +35,7 @@ import { useEffect, useState } from 'react'
 import clsx from 'clsx'
 import { Calculator } from 'lucide-react'
 import { Badge } from '../ui/badge'
+import { DatePicker } from './DatePicker'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -135,6 +136,7 @@ export function DataTableTransactions<
           </DropdownMenu>
         </div>
       </div>
+      <DatePicker />
       <div className="rounded-md border md:mx-4">
         <Table>
           <TableHeader>

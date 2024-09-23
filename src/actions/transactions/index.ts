@@ -78,14 +78,16 @@ export async function createTransaction(
     year: formData.get('year'),
     month: formData.get('month'),
     categoryId: formData.get('categoryId'),
+    isClosed: formData.get('isClosed'),
   })
 
   if (!parsed.success) {
-    console.log(parsed.error)
+    console.log(formData, parsed.error)
     return { errors: parsed.error.flatten().fieldErrors }
   }
 
   try {
+    const status = parsed.data.isClosed ? 'CLOSE' : 'OPEN'
     await prisma.transaction.create({
       data: {
         description: parsed.data.description,
@@ -94,6 +96,7 @@ export async function createTransaction(
         month: parsed.data.month,
         categoryId: parsed.data.categoryId,
         clusterId,
+        status,
       },
     })
   } catch (err) {

@@ -64,6 +64,7 @@ export const CreateTransactionSchema = z.object({
       return parseInt(val)
     }),
   categoryId: z.string().cuid(),
+  isClosed: z.string().nullable(),
 })
 
 export const GetTransactionSchema = z.object({

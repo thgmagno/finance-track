@@ -38,6 +38,7 @@ import {
 import { SelectMonth } from '../common/SelectMonth'
 import { getCategory } from '@/actions/categories'
 import { ButtonFormSubmit } from '../common/Buttons'
+import { Checkbox } from '../ui/checkbox'
 
 type Categories = {
   id: string
@@ -141,7 +142,18 @@ function Form({ categories, className }: FormProps) {
         <DisplayFormStateError message={formState?.errors.description} />
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="amount">Amount</Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="amount">Amount</Label>
+          <div className="mt-2 flex items-center justify-end space-x-2">
+            <Label
+              htmlFor="isClosed"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Mark as Closed
+            </Label>
+            <Checkbox id="isClosed" name="isClosed" className="h-5 w-5" />
+          </div>
+        </div>
         <Input
           id="amount"
           name="amount"
