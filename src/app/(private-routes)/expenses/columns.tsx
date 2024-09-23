@@ -15,8 +15,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { StatusDropdown } from '@/components/common/StatusDropdown'
-import { CategoryDropdown } from '@/components/common/CategoryDropdown'
 
 interface TransactionsWithCategories extends Transaction {
   category: {
@@ -60,7 +58,7 @@ export const columns: ColumnDef<TransactionsWithCategories>[] = [
   },
   {
     accessorKey: 'category',
-    header: () => <CategoryDropdown />,
+    header: 'Category',
     cell: ({ row }) => {
       const category = row.getValue('category') as Category | null
       return category?.description || '-'
@@ -68,7 +66,7 @@ export const columns: ColumnDef<TransactionsWithCategories>[] = [
   },
   {
     accessorKey: 'status',
-    header: () => <StatusDropdown />,
+    header: 'Status',
     cell: ({ row }) => {
       const value = String(row.getValue('status')).toLowerCase() as
         | 'open'

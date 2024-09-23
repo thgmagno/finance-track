@@ -209,12 +209,12 @@ export function DataTableTransactions<
       </div>
       {isVisible && (
         <div
-          className={clsx('fixed bottom-5 right-5', {
+          className={clsx('fixed bottom-5 right-5 flex justify-end', {
             'slide-up': selectedTotal !== 'R$ 0,00',
             'slide-down': selectedTotal === 'R$ 0,00',
           })}
         >
-          <Badge className="text-lg">
+          <Badge className="min-w-fit text-lg">
             <Calculator className="mr-2 h-5 w-5" />
             {selectedTotal}
           </Badge>

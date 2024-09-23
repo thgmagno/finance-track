@@ -1,7 +1,10 @@
 import { z } from 'zod'
 
 const convertStringToFloat = (val: string) => {
-  const value = val.replace(/\D/g, '').replace('.', '').replace(',', '.')
+  const value = val
+    .replace(/[^\d.,-]/g, '')
+    .replace(/\./g, '')
+    .replace(',', '.')
   return parseFloat(value)
 }
 
