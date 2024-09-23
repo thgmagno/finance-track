@@ -15,8 +15,7 @@ import { Label } from '@/components/ui/label'
 import { useFormState } from 'react-dom'
 import { DisplayFormStateError } from '@/components/common/DisplayFormStateError'
 import { ButtonFormSubmit } from '@/components/common/Buttons'
-import { register } from '@/actions/authentication/register'
-import { login } from '@/actions/authentication/login'
+import { login, register } from '@/server/actions/auth'
 
 type AuthenticationModes = 'login' | 'register'
 

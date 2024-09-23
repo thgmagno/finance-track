@@ -1,10 +1,53 @@
 'use server'
 
-import { createUser } from '@/actions/users'
+import * as bcrypt from 'bcrypt'
 import { redirect } from 'next/navigation'
+import {
+  LoginFormState,
+  LoginSchema,
+  RegisterFormState,
+  RegisterSchema,
+} from '@/lib/models/authentication'
+import { createUser, getUser } from '@/server/actions/users'
+import { createPayloadAndTokenForUser } from '@/server/actions/session'
 import { hashValue } from '@/lib/helpers'
-import { createPayloadAndTokenForUser } from './session'
-import { RegisterFormState, RegisterSchema } from '@/lib/models/authentication'
+
+export async function login(
+  formState: LoginFormState,
+  formData: FormData,
+): Promise<LoginFormState> {
+  const parsed = LoginSchema.safeParse({
+    email: formData.get('email'),
+    password: formData.get('password'),
+  })
+
+  if (!parsed.success) {
+    return { errors: parsed.error.flatten().fieldErrors }
+  }
+
+  try {
+    const user = await getUser({ email: parsed.data.email })
+    if (!user) {
+      return { errors: { email: ['E-mail not found'] } }
+    }
+
+    const matchPassword = await bcrypt.compare(
+      parsed.data.password,
+      user.password,
+    )
+    if (!matchPassword) {
+      return { errors: { password: ['Password not match'] } }
+    }
+
+    await createPayloadAndTokenForUser(user)
+  } catch (err) {
+    return {
+      errors: { _form: 'Cannot connect to the server' },
+    }
+  }
+
+  redirect('/')
+}
 
 export async function register(
   formState: RegisterFormState,

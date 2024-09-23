@@ -5,8 +5,16 @@ import { Cluster, User } from '@prisma/client'
 import * as jose from 'jose'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { getCluster } from '../clusters'
-import { prisma } from '@/lib/prisma'
+import { db } from '@/server/db'
+import { getCluster } from '@/server/actions/clusters'
+
+interface SessionPayload extends jose.JWTPayload {
+  name: string
+  cluster: string
+  clusterId: string
+  createdAt: number
+  sub: string
+}
 
 export async function openSessionToken(
   token: string,
@@ -49,7 +57,7 @@ export async function getSession() {
   const token = cookies().get(process.env.COOKIE_NAME!)?.value
   if (!token) redirect('/authentication')
   const { payload } = await jose.jwtVerify(token, secret)
-  return payload
+  return payload as SessionPayload
 }
 
 export async function updateSessionAndStoreToken({
@@ -122,7 +130,7 @@ async function storeSessionToken(payload: {
 
   const { sub } = await openSessionToken(session)
 
-  return prisma.session.upsert({
+  return db.session.upsert({
     where: { userId: sub },
     update: { token: session, timestamp: currentTimestamp() },
     create: {
@@ -137,7 +145,7 @@ export async function keepSessionUpdated() {
   const tolerance = 10
   const { sub, createdAt } = await getSession()
 
-  const responseDB = await prisma.session.findUnique({
+  const responseDB = await db.session.findUnique({
     where: {
       userId: sub,
       timestamp: { gt: parseInt(String(createdAt)) + tolerance },

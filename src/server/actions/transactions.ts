@@ -3,63 +3,22 @@
 import {
   CreateTransactionFormState,
   CreateTransactionSchema,
-  GetTransactionSchema,
 } from '@/lib/models/transactions'
-import { prisma } from '@/lib/prisma'
+import { db } from '@/server/db'
 import { revalidatePath } from 'next/cache'
-import { getSession } from '../authentication/session'
 import { redirect } from 'next/navigation'
+import { getSession } from '@/server/actions/session'
 
-interface Props {
-  categoryDescription?: string
-  year?: string
-  month?: string
-}
+export async function getCurrentTransactions(clusterId: string) {
+  const currentDate = new Date()
 
-export async function getTransactions({
-  categoryDescription,
-  year,
-  month,
-}: Props) {
-  const { clusterId } = await getSession()
-
-  if (typeof clusterId !== 'string') {
-    return {
-      success: false,
-      message: 'Is needed to create cluster for manage transactions',
-    }
-  }
-
-  const parsed = GetTransactionSchema.safeParse({
-    categoryDescription,
-    year,
-    month,
-  })
-
-  if (!parsed.success) {
-    return { success: false, message: 'Parameters are invalid' }
-  }
-
-  const transactions = await prisma.transaction.findMany({
+  return db.transaction.findMany({
     where: {
-      OR: [
-        {
-          ...(parsed.data.categoryDescription && {
-            description: {
-              contains: parsed.data.categoryDescription,
-              mode: 'insensitive',
-            },
-          }),
-          ...(parsed.data.year && { year: { equals: parsed.data.year } }),
-          ...(parsed.data.month && { month: { equals: parsed.data.month } }),
-        },
-      ],
-      AND: { clusterId },
+      clusterId,
+      month: currentDate.getMonth() + 1,
+      year: currentDate.getFullYear(),
     },
-    include: { category: true },
   })
-
-  return { success: true, data: transactions }
 }
 
 export async function createTransaction(
@@ -88,7 +47,7 @@ export async function createTransaction(
 
   try {
     const status = parsed.data.isClosed ? 'CLOSE' : 'OPEN'
-    await prisma.transaction.create({
+    await db.transaction.create({
       data: {
         description: parsed.data.description,
         amount: parsed.data.amount,

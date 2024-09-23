@@ -55,8 +55,8 @@ model ClusterInvite {
   clusterId String   @map("cluster_id")
   userId    String   @map("user_id")
 
-  cluster Cluster? @relation(fields: [clusterId], references: [id], onDelete: Cascade)
-  user    User?    @relation(fields: [userId], references: [id])
+  cluster Cluster @relation(fields: [clusterId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id])
 
   @@map("cluster_invite")
 }
@@ -65,21 +65,21 @@ model Category {
   id          String        @id @default(cuid())
   description String
   type        CategoryType
-  clusterId   String?       @map("cluster_id")
+  clusterId   String        @map("cluster_id")
   transaction Transaction[]
 
-  cluster Cluster? @relation(fields: [clusterId], references: [id], onDelete: Cascade)
+  cluster Cluster  @relation(fields: [clusterId], references: [id], onDelete: Cascade)
   saving  Saving[]
 
   @@map("categories")
 }
 
 model Method {
-  id          String  @id @default(cuid())
+  id          String @id @default(cuid())
   description String
-  clusterId   String? @map("cluster_id")
+  clusterId   String @map("cluster_id")
 
-  cluster     Cluster?      @relation(fields: [clusterId], references: [id], onDelete: Cascade)
+  cluster     Cluster       @relation(fields: [clusterId], references: [id], onDelete: Cascade)
   transaction Transaction[]
 
   @@map("method")
@@ -92,29 +92,29 @@ model Transaction {
   year        Int
   month       Int
   status      TransactionStatus @default(OPEN)
-  categoryId  String?           @map("category_id")
-  clusterId   String?           @map("cluster_id")
-  methodId    String?           @map("method_id")
+  categoryId  String            @map("category_id")
+  clusterId   String            @map("cluster_id")
+  methodId    String            @map("method_id")
 
-  category    Category?     @relation(fields: [categoryId], references: [id])
-  cluster     Cluster?      @relation(fields: [clusterId], references: [id], onDelete: Cascade)
-  method      Method?       @relation(fields: [methodId], references: [id])
+  category    Category      @relation(fields: [categoryId], references: [id])
+  cluster     Cluster       @relation(fields: [clusterId], references: [id], onDelete: Cascade)
+  method      Method        @relation(fields: [methodId], references: [id])
   installment Installment[]
 
   @@map("transactions")
 }
 
 model Installment {
-  id            String  @id @default(cuid())
+  id            String @id @default(cuid())
   counter       Int
   total         Int
   amount        Float
   year          Int
   month         Int
-  clusterId     String? @map("cluster_id")
-  transactionId String  @map("transaction_id")
+  clusterId     String @map("cluster_id")
+  transactionId String @map("transaction_id")
 
-  cluster     Cluster?    @relation(fields: [clusterId], references: [id], onDelete: Cascade)
+  cluster     Cluster     @relation(fields: [clusterId], references: [id], onDelete: Cascade)
   transaction Transaction @relation(fields: [transactionId], references: [id])
 
   @@map("installment")

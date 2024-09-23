@@ -4,17 +4,33 @@ import {
   CreateCategoryFormState,
   CreateCategorySchema,
 } from '@/lib/models/categories'
-import { prisma } from '@/lib/prisma'
+import { db } from '@/server/db'
+import { $Enums, Category } from '@prisma/client'
+import { getSession } from '@/server/actions/session'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { getSession } from '../authentication/session'
-import { $Enums } from '@prisma/client'
 
-export async function getCategory(type?: 'EXPENSE' | 'RECEIPT' | 'SAVING') {
-  return prisma.category.findMany({
-    where: { type },
-    orderBy: { description: 'asc' },
-  })
+type AccCategoryType = {
+  EXPENSE: Category[]
+  RECEIPT: Category[]
+  SAVING: Category[]
+}
+
+export async function getCategoriesGroupedByType(clusterId: string) {
+  return db.category
+    .findMany({
+      where: { clusterId },
+    })
+    .then((data) =>
+      data.reduce(
+        (acc: AccCategoryType, category: Category) => {
+          acc[category.type] = acc[category.type] || []
+          acc[category.type].push(category)
+          return acc
+        },
+        { EXPENSE: [], RECEIPT: [], SAVING: [] },
+      ),
+    )
 }
 
 export async function createCategory(
@@ -37,7 +53,7 @@ export async function createCategory(
   }
 
   try {
-    await prisma.category.create({
+    await db.category.create({
       data: {
         description: parsed.data.description,
         type: parsed.data.type as $Enums.CategoryType,
