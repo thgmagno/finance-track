@@ -3,6 +3,7 @@ import { CategoryProvider } from '@/components/common/CategoryProvider'
 import { getTransactions } from '@/actions/transactions'
 import { getCategory } from '@/actions/categories'
 import { DataTableTransactions } from '@/components/dataTable/DataTableTransactions'
+import { ExpenseCharts } from '@/components/charts/ExpenseCharts'
 
 interface PageProps {
   searchParams?: {
@@ -36,6 +37,7 @@ export default async function ExpensePage({ searchParams }: PageProps) {
 
   return (
     <div className="container mx-auto pb-32 pt-5">
+      <ExpenseCharts />
       <DataTableTransactions columns={columns} data={response.data as []} />
       <CategoryProvider categories={categories} />
     </div>
