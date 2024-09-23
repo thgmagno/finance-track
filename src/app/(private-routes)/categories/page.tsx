@@ -1,18 +1,19 @@
+import { getCategory } from '@/actions/categories'
 import { columns } from './columns'
-import { DataTable } from '@/components/common/DataTable'
-import { Mocks, Payment } from './mocks'
-
-async function getData(): Promise<Payment[]> {
-  // Fetch data from your API here.
-  return Mocks
-}
+import { CategoryForm } from '@/components/drawer/Category'
+import { DataTableCommun } from '@/components/dataTable/DataTableCommun'
 
 export default async function CategoriesPage() {
-  const data = await getData()
+  const data = await getCategory()
 
   return (
     <div className="container mx-auto pb-32 pt-5">
-      <DataTable columns={columns} data={data} />
+      <DataTableCommun
+        columns={columns}
+        data={data}
+        query={{ create: 'category' }}
+      />
+      <CategoryForm />
     </div>
   )
 }

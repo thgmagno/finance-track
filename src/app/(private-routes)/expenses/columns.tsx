@@ -42,7 +42,6 @@ export const columns: ColumnDef<TransactionsWithCategories>[] = [
     ),
     cell: ({ row }) => {
       const checked = row.getIsSelected()
-      // const payment = row.original
 
       return (
         <Checkbox

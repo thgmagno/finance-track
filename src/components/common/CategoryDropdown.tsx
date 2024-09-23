@@ -31,7 +31,7 @@ export function CategoryDropdown() {
       <PopoverTrigger asChild>
         <Button variant="ghost" aria-expanded={open} className="p-0">
           {value
-            ? categories.find((category) => category === value)
+            ? categories.find((category) => category.id === value)?.description
             : 'Category'}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -44,8 +44,8 @@ export function CategoryDropdown() {
             <CommandGroup>
               {categories.map((category) => (
                 <CommandItem
-                  key={category}
-                  value={category}
+                  key={category.id}
+                  value={category.id}
                   onSelect={(currentValue) => {
                     const newValue = currentValue === value ? '' : currentValue
                     setValue(newValue)
@@ -56,10 +56,10 @@ export function CategoryDropdown() {
                   <Check
                     className={cn(
                       'mr-2 h-4 w-4',
-                      value === category ? 'opacity-100' : 'opacity-0',
+                      value === category.id ? 'opacity-100' : 'opacity-0',
                     )}
                   />
-                  {category}
+                  {category.description}
                 </CommandItem>
               ))}
             </CommandGroup>

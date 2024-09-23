@@ -1,8 +1,16 @@
 import { create } from 'zustand'
 
 interface CategoryStore {
-  categories: string[]
-  setCategories: (categories: string[]) => void
+  categories: {
+    id: string
+    description: string
+  }[]
+  setCategories: (
+    categories: {
+      id: string
+      description: string
+    }[],
+  ) => void
 }
 
 export const useCategoryStore = create<CategoryStore>((set) => ({

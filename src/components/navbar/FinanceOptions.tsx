@@ -43,11 +43,11 @@ export function FinanceOptions() {
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            onClick={() => replace('/payments')}
+            onClick={() => replace('/expenses')}
             className="cursor-pointer"
           >
             <ArrowUpFromLine className="mr-2 h-4 w-4" />
-            <span>Payments</span>
+            <span>Expenses</span>
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => replace('/receipts')}
