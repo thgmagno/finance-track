@@ -6,7 +6,7 @@ import * as jose from 'jose'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { db } from '@/server/db'
-import { getCluster } from '@/server/actions/clusters'
+import { getCluster } from './clusters'
 
 interface SessionPayload extends jose.JWTPayload {
   name: string

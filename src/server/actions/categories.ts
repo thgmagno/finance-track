@@ -1,49 +1,60 @@
 'use server'
 
+import { getCache, setCacheWithTTL } from '@/server/cache'
+import { getSession } from '@/server/actions/session'
+import { db } from '@/server/db'
+import { $Enums } from '@prisma/client'
+import { z } from 'zod'
 import {
   CreateCategoryFormState,
   CreateCategorySchema,
 } from '@/lib/models/categories'
-import { db } from '@/server/db'
-import { $Enums, Category } from '@prisma/client'
-import { getSession } from '@/server/actions/session'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
-type AccCategoryType = {
-  EXPENSE: Category[]
-  RECEIPT: Category[]
-  SAVING: Category[]
-}
+const CategorySchema = z.object({
+  id: z.string().cuid(),
+  description: z.string(),
+  type: z.enum(['EXPENSE', 'RECEIPT', 'SAVING']),
+  clusterId: z.string().cuid(),
+})
 
-export async function getCategoriesGroupedByType(clusterId: string) {
-  return db.category
-    .findMany({
+const CategoryArraySchema = z.array(CategorySchema)
+
+export async function getCategories() {
+  const { clusterId } = await getSession()
+
+  const cache = await getCache({ type: 'categories', clusterId })
+
+  if (!cache) {
+    const data = await db.category.findMany({
       where: { clusterId },
+      orderBy: { description: 'asc' },
     })
-    .then((data) =>
-      data.reduce(
-        (acc: AccCategoryType, category: Category) => {
-          acc[category.type] = acc[category.type] || []
-          acc[category.type].push(category)
-          return acc
-        },
-        { EXPENSE: [], RECEIPT: [], SAVING: [] },
-      ),
-    )
+
+    await setCacheWithTTL({
+      type: 'categories',
+      clusterId,
+      data: JSON.stringify(data),
+      ttl: 'oneWeek',
+    })
+
+    return data
+  }
+
+  const parsed = CategoryArraySchema.safeParse(cache)
+
+  return parsed.success ? parsed.data : []
 }
 
-export async function createCategory(
+export async function upsertCategory(
   formState: CreateCategoryFormState,
   formData: FormData,
 ): Promise<CreateCategoryFormState> {
   const { clusterId } = await getSession()
 
-  if (typeof clusterId !== 'string') {
-    return { errors: { _form: 'Parameters invalid' } }
-  }
-
   const parsed = CreateCategorySchema.safeParse({
+    id: formData.get('id'),
     description: formData.get('description'),
     type: formData.get('type'),
   })
@@ -53,19 +64,51 @@ export async function createCategory(
   }
 
   try {
-    await db.category.create({
-      data: {
+    await db.category.upsert({
+      where: {
+        id: parsed.data.id,
+      },
+      update: {
+        description: parsed.data.description,
+        type: parsed.data.type as $Enums.CategoryType,
+        clusterId,
+      },
+      create: {
         description: parsed.data.description,
         type: parsed.data.type as $Enums.CategoryType,
         clusterId,
       },
     })
+
+    await revalidateCache(clusterId)
   } catch (err) {
     return {
       errors: { _form: 'Cannot connect to the server' },
     }
   }
 
-  revalidatePath('/')
   redirect('/categories')
+}
+
+export async function deleteCategory(categoryId: string) {
+  const { clusterId } = await getSession()
+  await db.category.delete({
+    where: { id: categoryId },
+  })
+  await revalidateCache(clusterId)
+}
+
+export async function revalidateCache(clusterId: string) {
+  const dataToCache = await db.category.findMany({
+    where: { clusterId },
+  })
+
+  await setCacheWithTTL({
+    type: 'categories',
+    clusterId,
+    data: JSON.stringify(dataToCache),
+    ttl: 'oneWeek',
+  })
+
+  revalidatePath('/')
 }
