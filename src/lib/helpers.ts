@@ -1,7 +1,9 @@
 import * as bcrypt from 'bcrypt'
 
-export const capitalizeStr = (value: string) =>
-  value.charAt(0).toUpperCase().concat(value.slice(1)).trim()
+export const capitalizeStr = (value: string) => {
+  const trimmedValue = value.trim()
+  return trimmedValue.charAt(0).toUpperCase().concat(trimmedValue.slice(1))
+}
 
 export const secret = new TextEncoder().encode(process.env.AUTH_SECRET)
 
