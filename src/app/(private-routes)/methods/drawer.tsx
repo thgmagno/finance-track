@@ -21,23 +21,14 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from '@/components/ui/drawer'
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useFormState } from 'react-dom'
 import { DisplayFormStateError } from '@/components/common/DisplayFormStateError'
 import { ButtonFormSubmit } from '@/components/common/Buttons'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { Category } from '@prisma/client'
-import { upsertCategory } from '@/server/actions/categories'
+import { Method } from '@prisma/client'
+import { upsertMethod } from '@/server/actions/methods'
 import Link from 'next/link'
 import {
   Tooltip,
@@ -48,16 +39,16 @@ import {
 import { Plus } from 'lucide-react'
 
 interface FormProps extends React.ComponentProps<'form'> {
-  data?: Category
+  data?: Method
 }
 
-export function DrawerCategory() {
-  const [data, setData] = React.useState<Category | undefined>(undefined)
+export function DrawerMethod() {
+  const [data, setData] = React.useState<Method | undefined>(undefined)
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const { replace } = useRouter()
 
-  const open = searchParams.get('create') === 'category'
+  const open = searchParams.get('create') === 'method'
   const dataStr = searchParams.get('data')
   const isDesktop = useMediaQuery('(min-width: 768px)')
 
@@ -77,15 +68,14 @@ export function DrawerCategory() {
       <Dialog open={open} onOpenChange={handleClose}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>
-              {data ? 'Edit category' : 'Create category'}
-            </DialogTitle>
+            <DialogTitle>{data ? 'Edit method' : 'Create method'}</DialogTitle>
             <DialogDescription>
-              Specify the type, provide a brief description, and ensure all
-              details are correct.
+              Manage your financial methods, such as payment or receipt types.
+              Create new methods or edit existing ones to better organize and
+              categorize your transactions.
             </DialogDescription>
           </DialogHeader>
-          <CategoryForm data={data} />
+          <MethodForm data={data} />
         </DialogContent>
       </Dialog>
     )
@@ -95,15 +85,14 @@ export function DrawerCategory() {
     <Drawer open={open} onOpenChange={() => replace(pathname)}>
       <DrawerContent>
         <DrawerHeader className="text-left">
-          <DrawerTitle>
-            {data ? 'Edit category' : 'Create category'}
-          </DrawerTitle>
+          <DrawerTitle>{data ? 'Edit method' : 'Create method'}</DrawerTitle>
           <DrawerDescription>
-            Specify the type, provide a brief description, and ensure all
-            details are correct.
+            Manage your financial methods, such as payment or receipt types.
+            Create new methods or edit existing ones to better organize and
+            categorize your transactions.
           </DrawerDescription>
         </DrawerHeader>
-        <CategoryForm data={data} className="px-4" />
+        <MethodForm data={data} className="px-4" />
         <DrawerFooter className="pt-2">
           <DrawerClose asChild>
             <Button variant="outline">Cancel</Button>
@@ -114,8 +103,8 @@ export function DrawerCategory() {
   )
 }
 
-function CategoryForm({ className, data }: FormProps) {
-  const [formState, action] = useFormState(upsertCategory, { errors: {} })
+function MethodForm({ className, data }: FormProps) {
+  const [formState, action] = useFormState(upsertMethod, { errors: {} })
 
   return (
     <form action={action} className={cn('grid items-start gap-4', className)}>
@@ -130,24 +119,7 @@ function CategoryForm({ className, data }: FormProps) {
         />
         <DisplayFormStateError message={formState?.errors.description} />
       </div>
-      <div className="grid flex-1 gap-2 text-base">
-        <Label htmlFor="type">Category type</Label>
-        <Select name="type" defaultValue={data?.type ?? ''}>
-          <SelectTrigger className="h-12">
-            <SelectValue placeholder="Select category type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectLabel>Types</SelectLabel>
-              <SelectItem value="EXPENSE">Expense</SelectItem>
-              <SelectItem value="RECEIPT">Receipt</SelectItem>
-              <SelectItem value="SAVING">Saving</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-        <DisplayFormStateError message={formState?.errors.type} />
-      </div>
-      <ButtonFormSubmit title={data ? 'Save changes' : 'Create category'} />
+      <ButtonFormSubmit title={data ? 'Save changes' : 'Create method'} />
     </form>
   )
 }
@@ -155,7 +127,7 @@ function CategoryForm({ className, data }: FormProps) {
 export function AddButton() {
   return (
     <div className="mb-3 flex justify-end">
-      <Link href={{ query: { create: 'category' } }}>
+      <Link href={{ query: { create: 'method' } }}>
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -164,7 +136,7 @@ export function AddButton() {
               </Button>
             </TooltipTrigger>
             <TooltipContent side="left" className="mr-2">
-              <p>Add category</p>
+              <p>Add method</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

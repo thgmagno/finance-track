@@ -3,49 +3,43 @@
 import { getCache, setCacheWithTTL } from '@/server/cache'
 import { getSession } from '@/server/actions/session'
 import { db } from '@/server/db'
-import { $Enums } from '@prisma/client'
 import { z } from 'zod'
-import {
-  CreateCategoryFormState,
-  CreateCategorySchema,
-} from '@/lib/models/categories'
+import { CreateMethodFormState, CreateMethodSchema } from '@/lib/models/methods'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
-const CategorySchema = z.object({
+const MethodSchema = z.object({
   id: z.string().cuid(),
   description: z.string(),
-  type: z.enum(['EXPENSE', 'RECEIPT', 'SAVING']),
   clusterId: z.string().cuid(),
 })
 
-const CategoryArraySchema = z.array(CategorySchema)
+const MethodArraySchema = z.array(MethodSchema)
 
-export async function getCategories() {
+export async function getMethods() {
   const { clusterId } = await getSession()
 
-  const cache = await getCache({ type: 'categories', clusterId })
+  const cache = await getCache({ type: 'methods', clusterId })
 
   if (!cache) {
     const data = await revalidateCache(clusterId, true)
     return data
   }
 
-  const parsed = CategoryArraySchema.safeParse(cache)
+  const parsed = MethodArraySchema.safeParse(cache)
 
   return parsed.success ? parsed.data : []
 }
 
-export async function upsertCategory(
-  formState: CreateCategoryFormState,
+export async function upsertMethod(
+  formState: CreateMethodFormState,
   formData: FormData,
-): Promise<CreateCategoryFormState> {
+): Promise<CreateMethodFormState> {
   const { clusterId } = await getSession()
 
-  const parsed = CreateCategorySchema.safeParse({
+  const parsed = CreateMethodSchema.safeParse({
     id: formData.get('id'),
     description: formData.get('description'),
-    type: formData.get('type'),
   })
 
   if (!parsed.success) {
@@ -53,18 +47,16 @@ export async function upsertCategory(
   }
 
   try {
-    await db.category.upsert({
+    await db.method.upsert({
       where: {
         id: parsed.data.id,
       },
       update: {
         description: parsed.data.description,
-        type: parsed.data.type as $Enums.CategoryType,
         clusterId,
       },
       create: {
         description: parsed.data.description,
-        type: parsed.data.type as $Enums.CategoryType,
         clusterId,
       },
     })
@@ -76,25 +68,25 @@ export async function upsertCategory(
     }
   }
 
-  redirect('/categories')
+  redirect('/methods')
 }
 
-export async function deleteCategory(categoryId: string) {
+export async function deleteMethod(methodId: string) {
   const { clusterId } = await getSession()
-  await db.category.delete({
-    where: { id: categoryId, clusterId },
+  await db.method.delete({
+    where: { id: methodId, clusterId },
   })
   await revalidateCache(clusterId)
 }
 
 export async function revalidateCache(clusterId: string, returnData?: boolean) {
-  const dataToCache = await db.category.findMany({
+  const dataToCache = await db.method.findMany({
     where: { clusterId },
     orderBy: { description: 'asc' },
   })
 
   await setCacheWithTTL({
-    type: 'categories',
+    type: 'methods',
     clusterId,
     data: JSON.stringify(dataToCache),
     ttl: 'oneWeek',
