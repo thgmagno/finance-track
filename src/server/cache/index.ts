@@ -42,10 +42,14 @@ export async function setCacheWithTTL(params: SetParams) {
 
 export async function clearCache(clusterId: string) {
   try {
+    const keys: string[] = []
     await Promise.all([
-      kv.del(`categories:${clusterId}`),
-      kv.del(`methods:${clusterId}`),
+      kv.keys(`*:${clusterId}`).then((data) => keys.push(...data)),
+      kv.keys(`*:${clusterId}:*`).then((data) => keys.push(...data)),
     ])
+
+    const promises = keys.map((key) => kv.del(key))
+    await Promise.all(promises)
   } catch (error) {
     console.error('Error setting cache:', error)
   }
