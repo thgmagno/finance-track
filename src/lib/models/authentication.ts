@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { capitalizeStr } from '@/lib/helpers'
 
 // Schemas
 export const LoginSchema = z.object({
@@ -7,7 +8,10 @@ export const LoginSchema = z.object({
 })
 
 export const RegisterSchema = z.object({
-  name: z.string().min(1),
+  name: z
+    .string()
+    .min(1)
+    .transform((val) => capitalizeStr(val)),
   email: z.string().email(),
   password: z.string().min(4),
 })

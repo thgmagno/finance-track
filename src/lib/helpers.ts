@@ -1,14 +1,7 @@
 import * as bcrypt from 'bcrypt'
 
-export const capitalizeStr = (text: string) => {
-  const splited = text.split(' ')
-  return splited
-    .map((split) =>
-      String(split).charAt(0).toUpperCase().concat(String(split).slice(1)),
-    )
-    .join(' ')
-    .trim()
-}
+export const capitalizeStr = (value: string) =>
+  value.charAt(0).toUpperCase().concat(value.slice(1)).trim()
 
 export const secret = new TextEncoder().encode(process.env.AUTH_SECRET)
 
