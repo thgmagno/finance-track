@@ -84,9 +84,6 @@
   body {
     @apply bg-zinc-200 text-foreground
   }
-  .container {
-    @apply px-2 flex-1
-  }
 }
 
 @layer components {

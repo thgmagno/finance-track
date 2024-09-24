@@ -1,41 +1,15 @@
 import { getCategories } from '@/server/actions/categories'
-import { DeleteDialog, DrawerCategory } from './drawer'
-import Link from 'next/link'
+import { AddButton, DrawerCategory } from './drawer'
+import { DataTable } from '@/components/common/DataTable'
+import { columns } from './columns'
 
 export default async function Categories() {
   const categories = await getCategories()
+
   return (
-    <main className="container">
-      <Link
-        href={{
-          query: {
-            create: 'category',
-          },
-        }}
-      >
-        Create category
-      </Link>
-      <div className="flex flex-col">
-        {categories.map((category) => (
-          <div key={category.id}>
-            <span>
-              {category.description} - {category.type} -{' '}
-            </span>
-            <Link
-              href={{
-                query: {
-                  create: 'category',
-                  data: encodeURI(JSON.stringify(category)),
-                },
-              }}
-            >
-              Edit
-            </Link>
-            {' - '}
-            <DeleteDialog categoryId={category.id} />
-          </div>
-        ))}
-      </div>
+    <main className="px-2 md:px-5">
+      <AddButton />
+      <DataTable columns={columns} data={categories ?? []} />
       <DrawerCategory />
     </main>
   )

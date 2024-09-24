@@ -37,7 +37,15 @@ import { DisplayFormStateError } from '@/components/common/DisplayFormStateError
 import { ButtonFormSubmit } from '@/components/common/Buttons'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Category } from '@prisma/client'
-import { deleteCategory, upsertCategory } from '@/server/actions/categories'
+import { upsertCategory } from '@/server/actions/categories'
+import Link from 'next/link'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import { Plus } from 'lucide-react'
 
 interface FormProps extends React.ComponentProps<'form'> {
   data?: Category
@@ -140,6 +148,23 @@ function CategoryForm({ className, data }: FormProps) {
   )
 }
 
-export function DeleteDialog({ categoryId }: { categoryId: string }) {
-  return <button onClick={() => deleteCategory(categoryId)}>Delete</button>
+export function AddButton() {
+  return (
+    <div className="mb-3 flex justify-end">
+      <Link href={{ query: { create: 'category' } }}>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="outline" className="rounded-full">
+                <Plus />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="left" className="mr-2">
+              <p>Add category</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </Link>
+    </div>
+  )
 }

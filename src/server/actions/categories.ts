@@ -27,18 +27,7 @@ export async function getCategories() {
   const cache = await getCache({ type: 'categories', clusterId })
 
   if (!cache) {
-    const data = await db.category.findMany({
-      where: { clusterId },
-      orderBy: { description: 'asc' },
-    })
-
-    await setCacheWithTTL({
-      type: 'categories',
-      clusterId,
-      data: JSON.stringify(data),
-      ttl: 'oneWeek',
-    })
-
+    const data = await revalidateCache(clusterId, true)
     return data
   }
 
@@ -98,9 +87,10 @@ export async function deleteCategory(categoryId: string) {
   await revalidateCache(clusterId)
 }
 
-export async function revalidateCache(clusterId: string) {
+export async function revalidateCache(clusterId: string, returnData?: boolean) {
   const dataToCache = await db.category.findMany({
     where: { clusterId },
+    orderBy: { description: 'asc' },
   })
 
   await setCacheWithTTL({
@@ -111,4 +101,5 @@ export async function revalidateCache(clusterId: string) {
   })
 
   revalidatePath('/')
+  return returnData ? dataToCache : null
 }
