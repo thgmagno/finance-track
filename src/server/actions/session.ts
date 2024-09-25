@@ -58,8 +58,8 @@ export async function updateSessionAndStoreToken({
   user,
   cluster,
 }: {
-  user?: User
-  cluster?: Cluster
+  user?: Pick<User, 'id' | 'name'>
+  cluster?: Pick<Cluster, 'id' | 'name'>
 }) {
   const { sub, name, cluster: oldCluster, clusterId } = await getSession()
 
@@ -85,7 +85,7 @@ export async function createPayloadAndTokenForUser(user: any) {
     sub: String(user.id),
     name: String(user.name),
     cluster,
-    clusterId: String(user.clusterId) ?? '',
+    clusterId: user.clusterId ?? '',
   }
 
   return createSessionToken(payload)
