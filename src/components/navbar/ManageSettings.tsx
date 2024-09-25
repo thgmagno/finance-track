@@ -63,7 +63,7 @@ export function ManageSettings() {
       })
     }
 
-    if (formState.errors) {
+    if (Object.keys(formState.errors).length) {
       toast({
         description: (
           <span className="flex items-center">
