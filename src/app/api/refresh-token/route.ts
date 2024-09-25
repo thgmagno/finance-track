@@ -11,9 +11,10 @@ export async function GET(request: Request) {
       path: '/',
       httpOnly: true,
     })
+
+    const referer = request.headers.get('referer') || '/authentication'
+    return Response.redirect(referer)
   } catch (err) {
     return Response.redirect(new URL('/logout', request.url))
   }
-
-  return Response.redirect(new URL('/authentication', request.url))
 }

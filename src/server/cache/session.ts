@@ -5,15 +5,8 @@ import { generateKey } from './helpers'
 import { kv } from '@vercel/kv'
 
 interface GetParams {
-  type:
-    | 'categories'
-    | 'methods'
-    | 'expenses'
-    | 'receipts'
-    | 'savings'
-    | 'expense_analytics'
-    | 'session'
-  id: string
+  type: 'session' | 'invites'
+  clusterId: string
   year?: number
   month?: number
 }
@@ -23,7 +16,7 @@ interface SetParams extends GetParams {
   ttl: 'oneDay' | 'oneWeek'
 }
 
-export async function getCache(params: GetParams) {
+export async function getSessionCache(params: GetParams) {
   try {
     const key = generateKey(params)
     return kv.get(key)
@@ -32,23 +25,21 @@ export async function getCache(params: GetParams) {
   }
 }
 
-export async function setCacheWithTTL(params: SetParams) {
+export async function setSessionCacheWithTTL(params: SetParams) {
   try {
-    if (params.id) {
-      const key = generateKey(params)
-      await kv.set(key, params.data, { ex: time[params.ttl] })
-    }
+    const key = generateKey(params)
+    await kv.set(key, params.data, { ex: time[params.ttl] })
   } catch (error) {
     console.error('Error setting cache:', error)
   }
 }
 
-export async function clearCache(id: string) {
+export async function clearSessionCache(clusterId: string) {
   try {
     const keys: string[] = []
     await Promise.all([
-      kv.keys(`*:${id}`).then((data) => keys.push(...data)),
-      kv.keys(`*:${id}:*`).then((data) => keys.push(...data)),
+      kv.keys(`*:${clusterId}`).then((data) => keys.push(...data)),
+      kv.keys(`*:${clusterId}:*`).then((data) => keys.push(...data)),
     ])
 
     const promises = keys.map((key) => kv.del(key))

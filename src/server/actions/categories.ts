@@ -24,7 +24,7 @@ const CategoryArraySchema = z.array(CategorySchema)
 export async function getCategories() {
   const { clusterId } = await getSession()
 
-  const cache = await getCache({ type: 'categories', clusterId })
+  const cache = await getCache({ type: 'categories', id: clusterId })
 
   if (!cache) {
     const data = await revalidateCache(clusterId, true)
@@ -95,7 +95,7 @@ export async function revalidateCache(clusterId: string, returnData?: boolean) {
 
   await setCacheWithTTL({
     type: 'categories',
-    clusterId,
+    id: clusterId,
     data: JSON.stringify(dataToCache),
     ttl: 'oneWeek',
   })

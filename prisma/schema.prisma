@@ -22,14 +22,6 @@ model User {
   @@map("users")
 }
 
-model Session {
-  userId    String @unique @map("user_id")
-  token     String
-  timestamp Int
-
-  @@map("sessions")
-}
-
 model Cluster {
   id            String          @id @default(cuid())
   name          String

@@ -1,14 +1,14 @@
 export const generateKey = (params: {
   type: string
-  clusterId: string
+  id: string
   year?: number
   month?: number
 }) => {
-  const { type, clusterId, year, month } = params
+  const { type, id, year, month } = params
 
   if (year && month) {
-    return `${type}:${clusterId}:${year}:${month}`
+    return `${type}:${id}:${year}:${month}`
   } else {
-    return `${type}:${clusterId}`
+    return `${type}:${id}`
   }
 }

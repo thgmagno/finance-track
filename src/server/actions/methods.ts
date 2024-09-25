@@ -19,7 +19,7 @@ const MethodArraySchema = z.array(MethodSchema)
 export async function getMethods() {
   const { clusterId } = await getSession()
 
-  const cache = await getCache({ type: 'methods', clusterId })
+  const cache = await getCache({ type: 'methods', id: clusterId })
 
   if (!cache) {
     const data = await revalidateCache(clusterId, true)
@@ -87,7 +87,7 @@ export async function revalidateCache(clusterId: string, returnData?: boolean) {
 
   await setCacheWithTTL({
     type: 'methods',
-    clusterId,
+    id: clusterId,
     data: JSON.stringify(dataToCache),
     ttl: 'oneWeek',
   })
