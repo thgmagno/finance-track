@@ -14,6 +14,7 @@ import { DropdownMenuItemLogout } from './DropdownMenuItemLogout'
 import { ManageSettings } from './ManageSettings'
 import { NewCluster } from './NewCluster'
 import { FinanceOptions } from './FinanceOptions'
+import { ManageMembers } from './ManageMembers'
 
 interface Props {
   username: string
@@ -37,6 +38,7 @@ export function DropdownUserMenu({ username, clusterName }: Props) {
               <DropdownMenuLabel className="cursor-default">
                 {clusterName}
               </DropdownMenuLabel>
+              <ManageMembers />
             </>
           ) : (
             <NewCluster />

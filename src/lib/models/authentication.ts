@@ -11,8 +11,9 @@ export const RegisterSchema = z.object({
   name: z
     .string()
     .min(1)
+    .max(30)
     .transform((val) => capitalizeStr(val)),
-  email: z.string().email(),
+  email: z.string().max(40).email(),
   password: z.string().min(4),
 })
 

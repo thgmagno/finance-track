@@ -52,26 +52,28 @@ export async function updateInfo(
     const hasUsernameChanged = parsed.data.username !== name
     const hasClusterNameChanged = parsed.data.clusterName !== cluster
 
-    if (hasUsernameChanged || hasClusterNameChanged) {
-      if (hasUsernameChanged) {
-        await db.user.update({
-          where: { id: sub },
-          data: { name: parsed.data.username },
-        })
-      }
+    if (!hasUsernameChanged && !hasClusterNameChanged) {
+      return { success: false, errors: {} }
+    }
 
-      if (hasClusterNameChanged) {
-        await db.cluster.update({
-          where: { id: clusterId },
-          data: { name: parsed.data.clusterName },
-        })
-      }
-
-      await updateSessionAndStoreToken({
-        user: { id: sub, name: parsed.data.username },
-        cluster: { id: clusterId, name: parsed.data.clusterName },
+    if (hasUsernameChanged) {
+      await db.user.update({
+        where: { id: sub },
+        data: { name: parsed.data.username },
       })
     }
+
+    if (hasClusterNameChanged) {
+      await db.cluster.update({
+        where: { id: clusterId },
+        data: { name: parsed.data.clusterName },
+      })
+    }
+
+    await updateSessionAndStoreToken({
+      user: { id: sub, name: parsed.data.username },
+      cluster: { id: clusterId, name: parsed.data.clusterName },
+    })
   } catch (error) {
     return {
       errors: { _form: 'Failed connect to the server' },

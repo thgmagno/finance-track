@@ -13,6 +13,9 @@ interface GetParams {
     | 'savings'
     | 'expense_analytics'
     | 'session'
+    | 'invitations'
+    | 'members_list'
+    | 'members_invited'
   id: string
   year?: number
   month?: number
